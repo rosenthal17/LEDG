@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en" data-accent="gold" data-font="system">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ledg">
+<meta name="theme-color" content="#111214">
+<title>Ledg</title>
+<style>
+  :root{
+    --bg:#111214; --surface:#1B1C1F; --surface2:#242529; --surface3:#2C2D32;
+    --text:#F2F1EE; --text-secondary:#8B8D93; --text-muted:#5C5D62;
+    --border:#2A2B2F; --danger:#E2666B; --danger-bg:#3A2124;
+    --accent:#D6A756; --accent-text:#1A1508;
+    --font-app: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --radius:14px;
+  }
+  html[data-accent="gold"]{ --accent:#D6A756; --accent-text:#1A1508; }
+  html[data-accent="blue"]{ --accent:#5B8DEF; --accent-text:#0B1830; }
+  html[data-accent="teal"]{ --accent:#4FB0A5; --accent-text:#062420; }
+  html[data-accent="red"]{ --accent:#C1392B; --accent-text:#FBEAEA; }
+  html[data-font="system"]{ --font-app: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  html[data-font="helvetica"]{ --font-app: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+  html[data-font="verdana"]{ --font-app: Verdana, Geneva, sans-serif; }
+
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+  html,body{ margin:0; padding:0; background:var(--bg); color:var(--text); font-family:var(--font-app); overscroll-behavior:none; }
+  body{ padding-bottom:78px; min-height:100vh; min-height:100dvh; }
+  button, input, select, textarea{ font-family:inherit; }
+  input, select, textarea{
+    width:100%; background:var(--surface2); border:1px solid var(--border); color:var(--text);
+    border-radius:10px; padding:10px 12px; font-size:16px; outline:none;
+  }
+  input:focus, select:focus, textarea:focus{ border-color:var(--accent); }
+  button{ cursor:pointer; border:none; background:none; color:inherit; }
+  .btn{ width:100%; border-radius:12px; padding:13px; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; justify-content:center; gap:6px; }
+  .btn-primary{ background:var(--accent); color:var(--accent-text); }
+  .btn-secondary{ background:var(--surface2); color:var(--text); }
+  .btn-ghost{ background:transparent; color:var(--text-secondary); border:1px dashed var(--border); }
+  .btn-danger{ background:var(--danger-bg); color:var(--danger); }
+  .eyebrow{ color:var(--text-secondary); font-size:11px; text-transform:uppercase; letter-spacing:0.6px; margin-bottom:6px; font-weight:600; }
+  .card{ background:var(--surface); border-radius:16px; padding:16px; margin-bottom:12px; }
+  .row{ display:flex; align-items:center; }
+  .row-between{ display:flex; align-items:center; justify-content:space-between; }
+  .divider{ border-top:1px solid var(--border); }
+  #app-title{ text-align:center; padding:14px 0 0; font-size:15px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--text); }
+  .screen{ max-width:480px; margin:0 auto; padding:16px 16px 8px; }
+  .header{ display:grid; grid-template-columns:28px 1fr 28px; align-items:center; margin-bottom:4px; min-height:28px; }
+  .header-title{ text-align:center; font-size:15px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; }
+  .header-icon{ font-size:18px; color:var(--text-secondary); }
+  .header-icon.right{ justify-self:end; }
+  .header-icon.disabled{ color:var(--text-muted); pointer-events:none; }
+  .sub-date{ text-align:center; color:var(--text-secondary); font-size:12px; margin-bottom:16px; }
+  .stat-grid{ display:grid; gap:8px; }
+  .stat-box{ background:var(--surface2); border-radius:12px; padding:11px 12px; cursor:default; }
+  .stat-box .val{ font-size:20px; font-weight:800; letter-spacing:-0.3px; }
+  .stat-box .lbl{ color:var(--text-secondary); font-size:10px; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px; }
+  .list-row{ display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); }
+  .list-row:last-child{ border-bottom:none; }
+  .avatar{ width:32px; height:32px; border-radius:50%; background:var(--surface3); display:flex; align-items:center; justify-content:center; color:var(--accent); font-size:12px; font-weight:700; flex-shrink:0; }
+  .name{ font-size:14px; }
+  .meta{ color:var(--text-secondary); font-size:11px; margin-top:1px; }
+  .amount{ font-size:14px; font-weight:700; white-space:nowrap; }
+  .bottom-nav{ position:fixed; bottom:0; left:0; right:0; background:var(--surface); border-top:1px solid var(--border);
+    display:flex; justify-content:space-around; padding:10px 0 calc(10px + env(safe-area-inset-bottom)); z-index:20; }
+  .nav-btn{ display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--text-muted); font-size:9px; text-transform:uppercase; letter-spacing:0.4px; padding:4px 10px; }
+  .nav-btn.active{ color:var(--accent); }
+  .nav-btn i{ font-size:20px; }
+
+  /* Inline icon set (no external font dependency) */
+  .ti{ display:inline-block; width:1em; height:1em; background-color:currentColor; -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat; -webkit-mask-position:center; mask-position:center; -webkit-mask-size:contain; mask-size:contain; vertical-align:-0.15em; }
+  .ti-flame{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M8.5%2014.5a2.5%202.5%200%20002.5%202.5%202.5%202.5%200%20002.5-2.5c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05%202-6%20.5%202.5%202%204.9%204%206.5%202%201.6%203%203.5%203%205.5a7.5%207.5%200%2011-15%200c0-1.15.43-2.29%201-3a2.5%202.5%200%20002%202.5z%22%20fill%3D%22%23000%22/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M8.5%2014.5a2.5%202.5%200%20002.5%202.5%202.5%202.5%200%20002.5-2.5c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05%202-6%20.5%202.5%202%204.9%204%206.5%202%201.6%203%203.5%203%205.5a7.5%207.5%200%2011-15%200c0-1.15.43-2.29%201-3a2.5%202.5%200%20002%202.5z%22%20fill%3D%22%23000%22/%3E%3C/svg%3E"); }
+  .ti-users{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Ccircle%20cx%3D%228%22%20cy%3D%228%22%20r%3D%223.2%22%20fill%3D%22%23000%22/%3E%3Cpath%20d%3D%22M2%2020c0-4%202.7-6.5%206-6.5s6%202.5%206%206.5%22%20fill%3D%22%23000%22/%3E%3Ccircle%20cx%3D%2216.5%22%20cy%3D%228.5%22%20r%3D%222.6%22%20fill%3D%22%23000%22/%3E%3Cpath%20d%3D%22M13.5%2020c.2-2.8%201.6-5%203.8-5.8%202.6.8%204.7%203%204.7%205.8%22%20fill%3D%22%23000%22/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Ccircle%20cx%3D%228%22%20cy%3D%228%22%20r%3D%223.2%22%20fill%3D%22%23000%22/%3E%3Cpath%20d%3D%22M2%2020c0-4%202.7-6.5%206-6.5s6%202.5%206%206.5%22%20fill%3D%22%23000%22/%3E%3Ccircle%20cx%3D%2216.5%22%20cy%3D%228.5%22%20r%3D%222.6%22%20fill%3D%22%23000%22/%3E%3Cpath%20d%3D%22M13.5%2020c.2-2.8%201.6-5%203.8-5.8%202.6.8%204.7%203%204.7%205.8%22%20fill%3D%22%23000%22/%3E%3C/svg%3E"); }
+  .ti-wallet{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20x%3D%222%22%20y%3D%226%22%20width%3D%2220%22%20height%3D%2213%22%20rx%3D%222%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22/%3E%3Cline%20x1%3D%222%22%20y1%3D%2210%22%20x2%3D%2222%22%20y2%3D%2210%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22/%3E%3Ccircle%20cx%3D%2217%22%20cy%3D%2214.5%22%20r%3D%221.4%22%20fill%3D%22%23000%22/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20x%3D%222%22%20y%3D%226%22%20width%3D%2220%22%20height%3D%2213%22%20rx%3D%222%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22/%3E%3Cline%20x1%3D%222%22%20y1%3D%2210%22%20x2%3D%2222%22%20y2%3D%2210%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22/%3E%3Ccircle%20cx%3D%2217%22%20cy%3D%2214.5%22%20r%3D%221.4%22%20fill%3D%22%23000%22/%3E%3C/svg%3E"); }
+  .ti-chart-bar{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20x%3D%224%22%20y%3D%2212%22%20width%3D%224%22%20height%3D%228%22%20fill%3D%22%23000%22/%3E%3Crect%20x%3D%2210%22%20y%3D%227%22%20width%3D%224%22%20height%3D%2213%22%20fill%3D%22%23000%22/%3E%3Crect%20x%3D%2216%22%20y%3D%223%22%20width%3D%224%22%20height%3D%2217%22%20fill%3D%22%23000%22/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20x%3D%224%22%20y%3D%2212%22%20width%3D%224%22%20height%3D%228%22%20fill%3D%22%23000%22/%3E%3Crect%20x%3D%2210%22%20y%3D%227%22%20width%3D%224%22%20height%3D%2213%22%20fill%3D%22%23000%22/%3E%3Crect%20x%3D%2216%22%20y%3D%223%22%20width%3D%224%22%20height%3D%2217%22%20fill%3D%22%23000%22/%3E%3C/svg%3E"); }
+  .ti-settings{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cline%20x1%3D%224%22%20y1%3D%226%22%20x2%3D%2220%22%20y2%3D%226%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%2215%22%20cy%3D%226%22%20r%3D%222.2%22%20fill%3D%22%23000%22/%3E%3Cline%20x1%3D%224%22%20y1%3D%2212%22%20x2%3D%2220%22%20y2%3D%2212%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%229%22%20cy%3D%2212%22%20r%3D%222.2%22%20fill%3D%22%23000%22/%3E%3Cline%20x1%3D%224%22%20y1%3D%2218%22%20x2%3D%2220%22%20y2%3D%2218%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2218%22%20r%3D%222.2%22%20fill%3D%22%23000%22/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cline%20x1%3D%224%22%20y1%3D%226%22%20x2%3D%2220%22%20y2%3D%226%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%2215%22%20cy%3D%226%22%20r%3D%222.2%22%20fill%3D%22%23000%22/%3E%3Cline%20x1%3D%224%22%20y1%3D%2212%22%20x2%3D%2220%22%20y2%3D%2212%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%229%22%20cy%3D%2212%22%20r%3D%222.2%22%20fill%3D%22%23000%22/%3E%3Cline%20x1%3D%224%22%20y1%3D%2218%22%20x2%3D%2220%22%20y2%3D%2218%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2218%22%20r%3D%222.2%22%20fill%3D%22%23000%22/%3E%3C/svg%3E"); }
+  .ti-chevron-left{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M15%206L9%2012L15%2018%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M15%206L9%2012L15%2018%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E"); }
+  .ti-chevron-right{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M9%206L15%2012L9%2018%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M9%206L15%2012L9%2018%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E"); }
+  .ti-arrow-right{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M4%2012H20M14%206L20%2012L14%2018%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M4%2012H20M14%206L20%2012L14%2018%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E"); }
+  .ti-search{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2210%22%20r%3D%226%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22/%3E%3Cline%20x1%3D%2220%22%20y1%3D%2220%22%20x2%3D%2215%22%20y2%3D%2215%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2210%22%20r%3D%226%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22/%3E%3Cline%20x1%3D%2220%22%20y1%3D%2220%22%20x2%3D%2215%22%20y2%3D%2215%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E"); }
+  .ti-history{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%229%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22/%3E%3Cpath%20d%3D%22M12%207v5l4%202%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%229%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22/%3E%3Cpath%20d%3D%22M12%207v5l4%202%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E"); }
+  .ti-trash{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M4%207h16M9%207V5a1%201%200%20011-1h4a1%201%200%20011%201v2m-9%200l1%2013a1%201%200%20001%201h8a1%201%200%20001-1l1-13%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M4%207h16M9%207V5a1%201%200%20011-1h4a1%201%200%20011%201v2m-9%200l1%2013a1%201%200%20001%201h8a1%201%200%20001-1l1-13%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E"); }
+  .ti-x{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M6%206L18%2018M18%206L6%2018%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M6%206L18%2018M18%206L6%2018%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E"); }
+  .ti-plus{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M12%205V19M5%2012H19%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M12%205V19M5%2012H19%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E"); }
+  .ti-download{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M12%203v12m0%200l-4-4m4%204l4-4M4%2019h16%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M12%203v12m0%200l-4-4m4%204l4-4M4%2019h16%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E"); }
+  .ti-upload{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M12%2021V9m0%200l-4%204m4-4l4%204M4%205h16%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M12%2021V9m0%200l-4%204m4-4l4%204M4%205h16%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E"); }
+  .ti-file-spreadsheet{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M6%202h9l5%205v15a1%201%200%2001-1%201H6a1%201%200%2001-1-1V3a1%201%200%20011-1z%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linejoin%3D%22round%22/%3E%3Cpath%20d%3D%22M9%2012h6M9%2016h6M12%2012v8%22%20stroke%3D%22%23000%22%20stroke-width%3D%221.5%22/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M6%202h9l5%205v15a1%201%200%2001-1%201H6a1%201%200%2001-1-1V3a1%201%200%20011-1z%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linejoin%3D%22round%22/%3E%3Cpath%20d%3D%22M9%2012h6M9%2016h6M12%2012v8%22%20stroke%3D%22%23000%22%20stroke-width%3D%221.5%22/%3E%3C/svg%3E"); }
+  .ti-alert-triangle{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M12%203L2%2020h20L12%203z%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linejoin%3D%22round%22/%3E%3Cline%20x1%3D%2212%22%20y1%3D%2210%22%20x2%3D%2212%22%20y2%3D%2214%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2217%22%20r%3D%221%22%20fill%3D%22%23000%22/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M12%203L2%2020h20L12%203z%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linejoin%3D%22round%22/%3E%3Cline%20x1%3D%2212%22%20y1%3D%2210%22%20x2%3D%2212%22%20y2%3D%2214%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2217%22%20r%3D%221%22%20fill%3D%22%23000%22/%3E%3C/svg%3E"); }
+  .bottom-nav.style-icons .nav-label{ display:none; }
+  .bottom-nav.style-text .nav-btn i{ display:none; }
+  .fab-row{ margin-bottom:14px; }
+  .search-box{ display:flex; align-items:center; gap:8px; background:var(--surface2); border-radius:10px; padding:9px 12px; margin-bottom:14px; }
+  .search-box input{ background:none; border:none; padding:0; }
+  .chip{ background:var(--surface2); color:var(--text-secondary); font-size:11px; padding:6px 11px; border-radius:20px; white-space:nowrap; cursor:pointer; }
+  .chip.active{ background:var(--accent); color:var(--accent-text); font-weight:700; }
+  .chip-row{ display:flex; gap:6px; overflow-x:auto; margin-bottom:14px; padding-bottom:2px; }
+  .pill-select{ display:flex; gap:6px; }
+  .pill-select > div{ flex:1; text-align:center; padding:9px 0; border-radius:9px; background:var(--surface2); color:var(--text-secondary); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; }
+  .pill-select > div.active{ background:var(--accent); color:var(--accent-text); }
+  .toggle{ width:38px; height:22px; background:var(--surface3); border-radius:12px; position:relative; flex-shrink:0; transition:background .15s; }
+  .toggle.on{ background:var(--accent); }
+  .toggle .knob{ width:16px; height:16px; background:var(--text); border-radius:50%; position:absolute; top:3px; left:3px; transition:left .15s; }
+  .toggle.on .knob{ left:19px; background:var(--accent-text); }
+  .field{ margin-bottom:14px; }
+  .modal-overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:50; display:flex; align-items:flex-end; }
+  .modal-overlay.center{ align-items:center; justify-content:center; padding:20px; }
+  .sheet{ width:100%; max-width:480px; margin:0 auto; background:var(--surface); border-radius:20px 20px 0 0; padding:18px 16px calc(18px + env(safe-area-inset-bottom)); max-height:88vh; overflow-y:auto; }
+  .dialog{ width:100%; max-width:360px; background:var(--surface); border-radius:18px; padding:18px; }
+  .banner{ display:flex; justify-content:space-between; align-items:center; background:color-mix(in srgb, var(--accent) 18%, var(--surface)); border-radius:10px; padding:9px 12px; margin-bottom:14px; }
+  .banner .txt{ color:var(--accent); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
+  .date-row{ display:flex; gap:6px; margin-bottom:14px; }
+  .date-chip{ flex:1; background:var(--surface2); border-radius:10px; padding:10px 8px; display:flex; align-items:center; justify-content:center; gap:5px; color:var(--text); font-size:14px; font-weight:700; }
+  .date-chip-input{ flex:1; background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:9px 6px; color:var(--text); font-size:16px; font-weight:700; text-align:center; color-scheme:dark; }
+  .swatch{ width:22px; height:22px; border-radius:50%; flex-shrink:0; cursor:pointer; }
+  .swatch.selected{ border:2px solid var(--text); }
+  .grid-4{ display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+  .empty{ text-align:center; padding:40px 20px; color:var(--text-secondary); }
+  .empty i{ font-size:32px; color:var(--text-muted); margin-bottom:10px; display:block; }
+  .toast{ position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:var(--surface3); color:var(--text); padding:10px 18px; border-radius:30px; font-size:13px; z-index:60; }
+  .err{ color:var(--danger); font-size:12px; margin-top:4px; }
+  a{ color:var(--accent); }
+  ::-webkit-scrollbar{ display:none; }
+</style>
+</head>
+<body>
+
+<div id="app-title">Ledg</div>
+<div id="screen" class="screen"></div>
+
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="nav-btn" data-tab="today"><i class="ti ti-flame"></i><span class="nav-label">Today</span></button>
+  <button class="nav-btn" data-tab="customers"><i class="ti ti-users"></i><span class="nav-label">Clients</span></button>
+  <button class="nav-btn" data-tab="deposits"><i class="ti ti-wallet"></i><span class="nav-label">Deposits</span></button>
+  <button class="nav-btn" data-tab="analytics"><i class="ti ti-chart-bar"></i><span class="nav-label">Stats</span></button>
+  <button class="nav-btn" data-tab="settings"><i class="ti ti-settings"></i><span class="nav-label">Settings</span></button>
+</nav>
+
+<div id="modal-root"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- IndexedDB layer ---------- */
+const DB_NAME = "ink_ledger";
+const DB_VERSION = 1;
+let dbPromise = null;
+
+function openDB(){
+  if(dbPromise) return dbPromise;
+  dbPromise = new Promise((resolve, reject)=>{
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = (e)=>{
+      const db = e.target.result;
+      if(!db.objectStoreNames.contains("customers")) db.createObjectStore("customers", {keyPath:"id"});
+      if(!db.objectStoreNames.contains("entries")) db.createObjectStore("entries", {keyPath:"id"});
+      if(!db.objectStoreNames.contains("deposits")) db.createObjectStore("deposits", {keyPath:"id"});
+      if(!db.objectStoreNames.contains("meta")) db.createObjectStore("meta", {keyPath:"id"});
+    };
+    req.onsuccess = (e)=> resolve(e.target.result);
+    req.onerror = (e)=> reject(e.target.error);
+  });
+  return dbPromise;
+}
+
+function tx(storeName, mode){
+  return openDB().then(db => db.transaction(storeName, mode).objectStore(storeName));
+}
+function idbGetAll(storeName){
+  return tx(storeName, "readonly").then(store => new Promise((res, rej)=>{
+    const r = store.getAll();
+    r.onsuccess = ()=> res(r.result);
+    r.onerror = ()=> rej(r.error);
+  }));
+}
+function idbGet(storeName, id){
+  return tx(storeName, "readonly").then(store => new Promise((res, rej)=>{
+    const r = store.get(id);
+    r.onsuccess = ()=> res(r.result);
+    r.onerror = ()=> rej(r.error);
+  }));
+}
+function idbPut(storeName, value){
+  return tx(storeName, "readwrite").then(store => new Promise((res, rej)=>{
+    const r = store.put(value);
+    r.onsuccess = ()=> res(value);
+    r.onerror = ()=> rej(r.error);
+  }));
+}
+function idbDelete(storeName, id){
+  return tx(storeName, "readwrite").then(store => new Promise((res, rej)=>{
+    const r = store.delete(id);
+    r.onsuccess = ()=> res(true);
+    r.onerror = ()=> rej(r.error);
+  }));
+}
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,9); }
+
+/* ---------- Default settings ---------- */
+const DEFAULT_SETTINGS = {
+  id: "settings",
+  weekStartDay: 2, // Tuesday
+  weekEndDay: 6,   // Saturday
+  paymentMethods: ["Cash","Card","Venmo","Other"],
+  accentColor: "gold",
+  font: "system",
+  navStyle: "both",
+  lastBackupAt: null
+};
+
+/* ---------- App state ---------- */
+const state = {
+  tab: "today",
+  customers: [],
+  entries: [],
+  deposits: [],
+  settings: null,
+  todayOffset: 0,       // days back from real today, for day navigation
+  pinnedDate: null,     // ISO date string (yyyy-mm-dd) when backdating a batch of entries
+  customerSearch: "",
+  analyticsYear: null,
+  profileCustomerId: null
+};
+
+/* ---------- Date helpers ---------- */
+const DAY_NAMES = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const MONTH_ABBR = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+function todayDateObj(){ const d = new Date(); d.setHours(0,0,0,0); return d; }
+function addDays(date, n){ const d = new Date(date); d.setDate(d.getDate()+n); return d; }
+function toISODate(d){ // yyyy-mm-dd local
+  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), day=String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+function fmtDateShort(d){ return `${MONTH_ABBR[d.getMonth()]} ${d.getDate()}`; }
+function fmtDateFull(d){ return `${DAY_NAMES[d.getDay()].slice(0,3)}, ${MONTH_ABBR[d.getMonth()]} ${d.getDate()}`; }
+function fmtTime(d){
+  let h = d.getHours(); const m = String(d.getMinutes()).padStart(2,"0");
+  const ap = h >= 12 ? "PM" : "AM"; h = h % 12; if(h===0) h = 12;
+  return `${h}:${m} ${ap}`;
+}
+function fmtMoney(n){ n = Math.round((n||0)*100)/100; return "$" + n.toLocaleString(undefined,{minimumFractionDigits: n%1?2:0, maximumFractionDigits:2}); }
+function currentViewDate(){ return addDays(todayDateObj(), -state.todayOffset); }
+
+function isSameDay(iso, dateObj){ return iso === toISODate(dateObj); }
+
+function weekRangeFor(dateObj){
+  const startDay = state.settings.weekStartDay, endDay = state.settings.weekEndDay;
+  // length of the working week window
+  let span = endDay - startDay; if(span < 0) span += 7; span += 1;
+  // find most recent occurrence of startDay on/before dateObj
+  let diffToStart = dateObj.getDay() - startDay; if(diffToStart < 0) diffToStart += 7;
+  const start = addDays(dateObj, -diffToStart);
+  const end = addDays(start, span - 1);
+  return {start, end};
+}
+
+/* ---------- Load / bootstrap ---------- */
+async function loadAll(){
+  let settings = await idbGet("meta", "settings");
+  if(!settings){ settings = {...DEFAULT_SETTINGS}; await idbPut("meta", settings); }
+  state.settings = settings;
+  state.customers = await idbGetAll("customers");
+  state.entries = await idbGetAll("entries");
+  state.deposits = await idbGetAll("deposits");
+  state.analyticsYear = new Date().getFullYear();
+  applyTheme();
+}
+function applyTheme(){
+  document.documentElement.setAttribute("data-accent", state.settings.accentColor);
+  document.documentElement.setAttribute("data-font", state.settings.font);
+  const nav = document.getElementById("bottom-nav");
+  const style = state.settings.navStyle || "both";
+  nav.className = "bottom-nav" + (style==="icons" ? " style-icons" : style==="text" ? " style-text" : "");
+}
+async function saveSettings(){ await idbPut("meta", state.settings); applyTheme(); }
+
+/* ---------- Derived data helpers ---------- */
+function getCustomer(id){ return state.customers.find(c => c.id === id); }
+function customerEntries(id){ return state.entries.filter(e => e.customerId === id).sort((a,b)=> b.dateTime.localeCompare(a.dateTime)); }
+function customerDeposits(id){ return state.deposits.filter(d => d.customerId === id).sort((a,b)=> b.dateTime.localeCompare(a.dateTime)); }
+
+function depositBalance(customerId){
+  let bal = 0;
+  for(const d of state.deposits){
+    if(d.customerId !== customerId) continue;
+    if(d.type === "taken") bal += d.amount;
+    else if(d.type === "applied") bal -= d.amount;
+    else if(d.type === "refunded") bal -= d.amount;
+    else if(d.type === "no_show" && d.resolution === "kept") bal -= d.amount;
+  }
+  return Math.max(0, Math.round(bal*100)/100);
+}
+function totalDepositsHeld(){
+  return state.customers.reduce((sum,c)=> sum + depositBalance(c.id), 0);
+}
+function noShowStats(customerId){
+  const list = state.deposits.filter(d => d.customerId===customerId && d.type==="no_show");
+  return { count: list.length, kept: list.filter(d=>d.resolution==="kept").length, waived: list.filter(d=>d.resolution==="waived").length };
+}
+function entryTotal(e){ return (e.price||0) + (e.tip||0); }
+function sumEntries(list){ return list.reduce((s,e)=> s + entryTotal(e), 0); }
+
+function entriesInRange(start, end){ // inclusive, dateObj
+  const s = toISODate(start), en = toISODate(end);
+  return state.entries.filter(e => { const d = e.dateTime.slice(0,10); return d >= s && d <= en; });
+}
+function entriesOnDay(dateObj){ const iso = toISODate(dateObj); return state.entries.filter(e => e.dateTime.slice(0,10) === iso).sort((a,b)=> b.dateTime.localeCompare(a.dateTime)); }
+
+function initials(name){
+  return name.trim().split(/\s+/).slice(0,2).map(p=>p[0]?.toUpperCase()||"").join("") || "?";
+}
+
+/* ---------- Rendering root ---------- */
+function render(){
+  const el = document.getElementById("screen");
+  document.querySelectorAll(".nav-btn").forEach(b=> b.classList.toggle("active", b.dataset.tab === state.tab));
+  if(state.tab === "today") el.innerHTML = renderToday();
+  else if(state.tab === "customers") el.innerHTML = renderCustomers();
+  else if(state.tab === "profile") el.innerHTML = renderProfile();
+  else if(state.tab === "deposits") el.innerHTML = renderDeposits();
+  else if(state.tab === "analytics") el.innerHTML = renderAnalytics();
+  else if(state.tab === "settings") el.innerHTML = renderSettings();
+  bindScreenEvents();
+}
+
+function switchTab(tab, extra){
+  state.tab = tab;
+  if(extra) Object.assign(state, extra);
+  render();
+}
+
+/* ---------- TODAY screen ---------- */
+function renderToday(){
+  const viewDate = currentViewDate();
+  const isToday = state.todayOffset === 0;
+  const dayEntries = entriesOnDay(viewDate);
+  const dayTotal = sumEntries(dayEntries);
+  const {start, end} = weekRangeFor(viewDate);
+  const weekTotal = sumEntries(entriesInRange(start, end));
+
+  let backdateBanner = "";
+  if(state.pinnedDate){
+    const pd = new Date(state.pinnedDate + "T00:00:00");
+    backdateBanner = `<div class="banner"><span class="txt">Logging for ${fmtDateShort(pd).toUpperCase()}</span>
+      <span style="color:var(--text-secondary);font-size:11px;cursor:pointer;" data-action="clear-pin">Reset to today</span></div>`;
+  }
+
+  const rows = dayEntries.length ? dayEntries.map(e => entryRow(e)).join("") :
+    `<div class="empty"><i class="ti ti-flame"></i>No payments ${isToday? "yet today":"for this day"}. Log your first one.</div>`;
+
+  return `
+    <div class="header">
+      <i class="ti ti-chevron-left header-icon" data-action="day-back"></i>
+      <div class="header-title">${isToday ? "Today" : fmtDateShort(viewDate)}</div>
+      <i class="ti ti-chevron-right header-icon right ${isToday?'disabled':''}" data-action="day-fwd"></i>
+    </div>
+    <div class="sub-date">${fmtDateFull(viewDate)}</div>
+    ${backdateBanner}
+    <div class="stat-grid" style="grid-template-columns:1fr 1fr;margin-bottom:14px;">
+      <div class="stat-box"><div class="lbl">${isToday?"Today":"This day"}</div><div class="val">${fmtMoney(dayTotal)}</div></div>
+      <div class="stat-box"><div class="lbl">This week</div><div class="val">${fmtMoney(weekTotal)}</div></div>
+    </div>
+    <div class="fab-row">
+      <button class="btn btn-primary" data-action="new-entry"><i class="ti ti-plus"></i>New payment</button>
+    </div>
+    <div class="eyebrow">Recent</div>
+    <div class="card" style="padding:4px 16px;">${rows}</div>
+  `;
+}
+
+function entryRow(e){
+  const c = getCustomer(e.customerId);
+  const dt = new Date(e.dateTime);
+  const edited = e.editHistory && e.editHistory.length ? `<i class="ti ti-history" style="font-size:13px;color:var(--accent);margin-left:6px;" data-action="edit-history" data-id="${e.id}"></i>` : "";
+  return `<div class="list-row">
+    <div class="avatar">${initials(c ? c.name : "?")}</div>
+    <div style="flex:1;min-width:0;" data-action="open-entry" data-id="${e.id}">
+      <div class="name">${escapeHtml(c ? c.name : "Unknown")}</div>
+      <div class="meta">${fmtTime(dt)}${e.description? " · " + escapeHtml(e.description) : ""}</div>
+    </div>
+    <div class="amount">${fmtMoney(entryTotal(e))}</div>${edited}
+  </div>`;
+}
+
+function escapeHtml(s){ const d = document.createElement("div"); d.textContent = s==null?"":String(s); return d.innerHTML; }
+
+/* ---------- CUSTOMERS screen ---------- */
+function renderCustomers(){
+  const q = state.customerSearch.trim().toLowerCase();
+  let list = [...state.customers];
+  if(q) list = list.filter(c => c.name.toLowerCase().includes(q));
+  list.sort((a,b)=> a.name.localeCompare(b.name));
+
+  const rows = list.length ? list.map(c=>{
+    const ents = customerEntries(c.id);
+    const bal = depositBalance(c.id);
+    const ns = noShowStats(c.id);
+    return `<div class="list-row" data-action="open-profile" data-id="${c.id}">
+      <div class="avatar">${initials(c.name)}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="name">${escapeHtml(c.name)}</div>
+        <div class="meta">${ents.length} visit${ents.length===1?"":"s"}</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="amount">${fmtMoney(sumEntries(ents))}</div>
+        ${bal>0? `<div style="color:var(--accent);font-size:10px;">${fmtMoney(bal)} deposit</div>` : ""}
+        ${ns.count>0? `<div style="color:var(--danger);font-size:10px;">${ns.count} no-show${ns.count===1?"":"s"}</div>` : ""}
+      </div>
+    </div>`;
+  }).join("") : `<div class="empty"><i class="ti ti-users"></i>No customers yet.</div>`;
+
+  return `
+    <div class="header"><div></div><div class="header-title">Clients</div><div></div></div>
+    <div style="height:14px;"></div>
+    <div class="search-box">
+      <i class="ti ti-search" style="color:var(--text-secondary);font-size:15px;"></i>
+      <input id="customer-search" placeholder="Search customers" value="${escapeHtml(state.customerSearch)}">
+    </div>
+    <div class="card" style="padding:4px 16px;">${rows}</div>
+  `;
+}
+
+/* ---------- PROFILE screen ---------- */
+function renderProfile(){
+  const c = getCustomer(state.profileCustomerId);
+  if(!c) return `<div class="empty">Customer not found.</div>`;
+  const ents = customerEntries(c.id);
+  const bal = depositBalance(c.id);
+  const ns = noShowStats(c.id);
+  const created = new Date(c.createdAt);
+
+  const rows = ents.length ? ents.map(e=>{
+    const dt = new Date(e.dateTime);
+    const edited = e.editHistory && e.editHistory.length ? `<i class="ti ti-history" style="font-size:13px;color:var(--accent);margin-left:6px;" data-action="edit-history" data-id="${e.id}"></i>` : `<i class="ti ti-history" style="font-size:13px;color:var(--text-muted);margin-left:6px;"></i>`;
+    return `<div class="list-row" >
+      <div style="flex:1;min-width:0;" data-action="open-entry" data-id="${e.id}">
+        <div class="name">${escapeHtml(e.description || "Tattoo session")}</div>
+        <div class="meta">${fmtDateShort(dt)} · ${e.paymentMethod}</div>
+      </div>
+      <div class="amount">${fmtMoney(entryTotal(e))}</div>${edited}
+    </div>`;
+  }).join("") : `<div class="empty" style="padding:20px 0;">No visits logged yet.</div>`;
+
+  return `
+    <div class="header">
+      <i class="ti ti-chevron-left header-icon" data-action="back-to-customers"></i>
+      <div class="header-title">Profile</div>
+      <i class="ti ti-trash header-icon right" style="color:var(--danger);" data-action="delete-customer" data-id="${c.id}"></i>
+    </div>
+    <div style="height:6px;"></div>
+    <div class="row" style="gap:10px;margin-bottom:14px;">
+      <div class="avatar" style="width:40px;height:40px;font-size:14px;">${initials(c.name)}</div>
+      <div>
+        <div class="name" style="font-size:15px;font-weight:700;">${escapeHtml(c.name)}</div>
+        <div class="meta">Since ${MONTH_ABBR[created.getMonth()]} ${created.getFullYear()}</div>
+      </div>
+    </div>
+    <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px;">
+      <div class="stat-box" style="text-align:center;"><div class="val" style="font-size:16px;">${ents.length}</div><div class="lbl">Visits</div></div>
+      <div class="stat-box" style="text-align:center;"><div class="val" style="font-size:16px;">${fmtMoney(sumEntries(ents))}</div><div class="lbl">Lifetime</div></div>
+      <div class="stat-box" style="text-align:center;"><div class="val" style="font-size:16px;color:${ns.count>0?'var(--danger)':'var(--text)'};">${ns.count}</div><div class="lbl">No-shows${ns.waived? " ("+ns.waived+" waived)":""}</div></div>
+    </div>
+    <div class="card row-between">
+      <div>
+        <div class="eyebrow" style="margin-bottom:2px;">Deposit held</div>
+        <div style="color:var(--accent);font-size:17px;font-weight:800;">${fmtMoney(bal)}</div>
+      </div>
+      <div class="row" style="gap:6px;">
+        <button class="chip" data-action="take-deposit" data-id="${c.id}">+ Take</button>
+        ${bal>0 ? `<button class="chip" data-action="deposit-action" data-id="${c.id}">Manage</button>` : ""}
+      </div>
+    </div>
+    <div class="eyebrow">History</div>
+    <div class="card" style="padding:4px 16px;">${rows}</div>
+  `;
+}
+
+/* ---------- DEPOSITS screen ---------- */
+function renderDeposits(){
+  const total = totalDepositsHeld();
+  const withBalances = state.customers.map(c => ({c, bal: depositBalance(c.id)})).filter(x=> x.bal > 0 || customerDeposits(x.c.id).length);
+  withBalances.sort((a,b)=> customerDeposits(b.c.id)[0]?.dateTime.localeCompare(customerDeposits(a.c.id)[0]?.dateTime||"") || 0);
+
+  const rows = withBalances.length ? withBalances.map(({c, bal})=>{
+    const recent = customerDeposits(c.id)[0];
+    let tag = "", note = "";
+    if(recent){
+      const dt = new Date(recent.dateTime);
+      if(recent.type === "no_show"){
+        tag = recent.resolution === "kept" ? `<span style="color:var(--danger);">Kept ${fmtMoney(recent.amount)}</span>` : `<span style="color:var(--text-secondary);">Waived</span>`;
+      } else if(recent.type === "taken"){
+        tag = `<span style="color:var(--accent);">${fmtMoney(recent.amount)} held</span>`;
+      } else if(recent.type === "applied"){
+        tag = `<span style="color:var(--text-secondary);">Applied ${fmtMoney(recent.amount)}</span>`;
+      } else if(recent.type === "refunded"){
+        tag = `<span style="color:var(--text-secondary);">Refunded ${fmtMoney(recent.amount)}</span>`;
+      }
+      note = `${fmtDateShort(dt)}${recent.note? " · " + escapeHtml(recent.note) : ""}`;
+    }
+    return `<div class="list-row" data-action="open-profile" data-id="${c.id}">
+      <div style="flex:1;min-width:0;">
+        <div class="name">${escapeHtml(c.name)}</div>
+        <div class="meta">${note}</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="amount">${tag}</div>
+        <div class="meta">balance ${fmtMoney(bal)}</div>
+      </div>
+    </div>`;
+  }).join("") : `<div class="empty"><i class="ti ti-wallet"></i>No deposits on record.</div>`;
+
+  return `
+    <div class="header"><div></div><div class="header-title">Deposits</div><div></div></div>
+    <div style="height:14px;"></div>
+    <div class="eyebrow">Held across all customers</div>
+    <div style="font-size:26px;font-weight:800;margin-bottom:14px;">${fmtMoney(total)}</div>
+    <div class="fab-row">
+      <button class="btn btn-primary" data-action="new-deposit"><i class="ti ti-plus"></i>New deposit</button>
+    </div>
+    <div class="card" style="padding:4px 16px;">${rows}</div>
+  `;
+}
+
+/* ---------- ANALYTICS screen ---------- */
+function renderAnalytics(){
+  const now = todayDateObj();
+  const yStart = new Date(now.getFullYear(),0,1), yEnd = new Date(now.getFullYear(),11,31);
+  const mStart = new Date(now.getFullYear(), now.getMonth(), 1), mEnd = new Date(now.getFullYear(), now.getMonth()+1, 0);
+  const {start:wStart, end:wEnd} = weekRangeFor(now);
+
+  const todayEntries = entriesOnDay(now);
+  const weekEntries = entriesInRange(wStart, wEnd);
+  const monthEntries = entriesInRange(mStart, mEnd);
+
+  const year = state.analyticsYear;
+  const yearEntries = state.entries.filter(e => e.dateTime.slice(0,4) === String(year));
+  const yearTotal = sumEntries(yearEntries);
+  const allTimeTotal = sumEntries(state.entries);
+
+  const avgPrice = state.entries.length ? sumEntries(state.entries)/state.entries.length : 0;
+  const totalTips = state.entries.reduce((s,e)=> s+(e.tip||0),0);
+  const avgTip = state.entries.length ? totalTips/state.entries.length : 0;
+
+  // monthly breakdown for selected year
+  const monthTotals = new Array(12).fill(0);
+  yearEntries.forEach(e=>{ const m = parseInt(e.dateTime.slice(5,7),10)-1; monthTotals[m] += entryTotal(e); });
+  const maxMonth = Math.max(1, ...monthTotals);
+  const bars = monthTotals.map((v,i)=> `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+      <div style="width:100%;background:var(--surface3);border-radius:3px;height:60px;display:flex;align-items:flex-end;">
+        <div style="width:100%;background:var(--accent);border-radius:3px;height:${Math.max(2,(v/maxMonth)*60)}px;"></div>
+      </div>
+      <div style="font-size:8px;color:var(--text-muted);">${MONTH_ABBR[i][0]}</div>
+    </div>`).join("");
+
+  // payment method breakdown (all-time)
+  const methodTotals = {};
+  state.entries.forEach(e => { methodTotals[e.paymentMethod] = (methodTotals[e.paymentMethod]||0) + entryTotal(e); });
+  const methodEntries = Object.entries(methodTotals).sort((a,b)=>b[1]-a[1]);
+  const methodTotalSum = methodEntries.reduce((s,[,v])=>s+v,0) || 1;
+  const palette = ["#D6A756","#5B8DEF","#4FB0A5","#C1392B","#B77FD1","#8B8D93"];
+  let cumOffset = 0;
+  const circleR = 15.5, circumference = 2*Math.PI*circleR;
+  const donutSegs = methodEntries.map(([name,val],i)=>{
+    const frac = val/methodTotalSum;
+    const dash = frac*circumference;
+    const seg = `<circle cx="18" cy="18" r="${circleR}" fill="none" stroke="${palette[i%palette.length]}" stroke-width="5" stroke-dasharray="${dash} ${circumference}" stroke-dashoffset="${-cumOffset}" transform="rotate(-90 18 18)"/>`;
+    cumOffset += dash;
+    return seg;
+  }).join("");
+  const legend = methodEntries.map(([name,val],i)=> `<div style="font-size:11px;color:${palette[i%palette.length]};">&#9679; ${escapeHtml(name)} ${Math.round(val/methodTotalSum*100)}%</div>`).join("");
+
+  // top customers
+  const byCustomer = {};
+  state.entries.forEach(e => { byCustomer[e.customerId] = (byCustomer[e.customerId]||0) + entryTotal(e); });
+  const topCustomers = Object.entries(byCustomer).sort((a,b)=>b[1]-a[1]).slice(0,3)
+    .map(([id,val])=> { const c = getCustomer(id); return `<div class="row-between" style="padding:6px 0;"><span style="font-size:12px;">${escapeHtml(c?c.name:"Unknown")}</span><span style="font-size:12px;font-weight:700;">${fmtMoney(val)}</span></div>`; }).join("");
+
+  const yearOptions = Array.from(new Set(state.entries.map(e=> e.dateTime.slice(0,4)))).map(Number);
+  if(!yearOptions.includes(now.getFullYear())) yearOptions.push(now.getFullYear());
+  yearOptions.sort((a,b)=>b-a);
+
+  return `
+    <div class="header"><div></div><div class="header-title">Stats</div><div></div></div>
+    <div style="height:14px;"></div>
+    <div class="stat-grid" style="grid-template-columns:1fr 1fr;margin-bottom:8px;">
+      <div class="stat-box"><div class="lbl">Today</div><div class="val">${fmtMoney(sumEntries(todayEntries))}</div></div>
+      <div class="stat-box"><div class="lbl">This week</div><div class="val">${fmtMoney(sumEntries(weekEntries))}</div></div>
+    </div>
+    <div class="stat-grid" style="grid-template-columns:1fr 1fr;margin-bottom:14px;">
+      <div class="stat-box"><div class="lbl">This month</div><div class="val">${fmtMoney(sumEntries(monthEntries))}</div></div>
+      <div class="stat-box"><div class="lbl">All time</div><div class="val">${fmtMoney(allTimeTotal)}</div></div>
+    </div>
+
+    <div class="card">
+      <div class="row-between" style="margin-bottom:10px;">
+        <div class="eyebrow" style="margin:0;">Monthly total, ${year}</div>
+        <select id="year-select" style="width:auto;padding:4px 8px;font-size:16px;">
+          ${yearOptions.map(y=> `<option value="${y}" ${y===year?"selected":""}>${y}</option>`).join("")}
+        </select>
+      </div>
+      <div style="font-size:22px;font-weight:800;margin-bottom:10px;">${fmtMoney(yearTotal)}</div>
+      <div style="display:flex;gap:4px;align-items:flex-end;">${bars}</div>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">Payment method (all time)</div>
+      <div class="row" style="gap:14px;">
+        <svg width="60" height="60" viewBox="0 0 36 36">
+          <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--surface3)" stroke-width="5"/>
+          ${donutSegs}
+        </svg>
+        <div>${legend || '<span style="color:var(--text-secondary);font-size:12px;">No data yet</span>'}</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">Averages</div>
+      <div class="row-between" style="padding:4px 0;"><span style="font-size:12px;color:var(--text-secondary);">Avg. per tattoo</span><span style="font-size:12px;font-weight:700;">${fmtMoney(avgPrice)}</span></div>
+      <div class="row-between" style="padding:4px 0;"><span style="font-size:12px;color:var(--text-secondary);">Avg. tip</span><span style="font-size:12px;font-weight:700;">${fmtMoney(avgTip)}</span></div>
+      <div class="row-between" style="padding:4px 0;"><span style="font-size:12px;color:var(--text-secondary);">Total tattoos logged</span><span style="font-size:12px;font-weight:700;">${state.entries.length}</span></div>
+    </div>
+
+    ${topCustomers ? `<div class="card"><div class="eyebrow">Top customers</div>${topCustomers}</div>` : ""}
+  `;
+}
+
+/* ---------- SETTINGS screen ---------- */
+function renderSettings(){
+  const s = state.settings;
+  const lastBackup = s.lastBackupAt ? new Date(s.lastBackupAt) : null;
+  const daysSince = lastBackup ? Math.floor((Date.now()-lastBackup.getTime())/86400000) : null;
+  const backupWarn = daysSince===null || daysSince > 7;
+
+  const methodChips = s.paymentMethods.map(m => `<div class="stat-box" style="display:flex;align-items:center;justify-content:center;text-align:center;padding:10px 4px;cursor:pointer;" data-action="edit-method" data-name="${escapeHtml(m)}">
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;">${escapeHtml(m)}</span>
+    </div>`).join("");
+
+  const navStyle = s.navStyle || "both";
+  const navOptions = [["both","Both"],["icons","Icons"],["text","Text"]]
+    .map(([key,label]) => `<div class="chip ${navStyle===key?'active':''}" data-action="set-nav-style" data-val="${key}">${label}</div>`).join("");
+
+  const accentSwatches = [["gold","#D6A756"],["blue","#5B8DEF"],["teal","#4FB0A5"],["red","#C1392B"]]
+    .map(([key,hex]) => `<div class="swatch ${s.accentColor===key?'selected':''}" style="background:${hex};" data-action="set-accent" data-val="${key}"></div>`).join("");
+
+  const fontOptions = [["system","System sans"],["helvetica","Helvetica"],["verdana","Verdana"]]
+    .map(([key,label]) => `<div class="chip ${s.font===key?'active':''}" data-action="set-font" data-val="${key}">${label}</div>`).join("");
+
+  return `
+    <div class="header"><div></div><div class="header-title">Settings</div><div></div></div>
+    <div style="height:14px;"></div>
+
+    <div class="card">
+      <div class="eyebrow">Week range</div>
+      <div class="row" style="gap:8px;">
+        <select id="week-start" style="flex:1;">${DAY_NAMES.map((d,i)=> `<option value="${i}" ${i===s.weekStartDay?"selected":""}>${d}</option>`).join("")}</select>
+        <i class="ti ti-arrow-right" style="color:var(--text-secondary);"></i>
+        <select id="week-end" style="flex:1;">${DAY_NAMES.map((d,i)=> `<option value="${i}" ${i===s.weekEndDay?"selected":""}>${d}</option>`).join("")}</select>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">Payment methods</div>
+      <div class="grid-4" style="margin-bottom:10px;">${methodChips}</div>
+      <button class="btn btn-ghost" data-action="add-method"><i class="ti ti-plus"></i>Add method</button>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">Accent color</div>
+      <div class="row" style="gap:10px;margin-bottom:16px;">${accentSwatches}</div>
+      <div class="eyebrow">Font</div>
+      <div class="chip-row" style="margin-bottom:0;">${fontOptions}</div>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">Bottom tabs</div>
+      <div class="chip-row" style="margin-bottom:0;">${navOptions}</div>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">Backup</div>
+      <div style="font-size:12px;margin-bottom:2px;">${lastBackup ? "Last backup: " + timeAgo(lastBackup) : "No backup yet"}</div>
+      ${backupWarn ? `<div style="color:#E2A23B;font-size:11px;margin-bottom:10px;">Export a backup soon</div>` : `<div style="height:10px;"></div>`}
+      <div class="row" style="gap:8px;">
+        <button class="btn btn-secondary" data-action="export-json"><i class="ti ti-download"></i>Export JSON</button>
+        <button class="btn btn-secondary" data-action="export-csv"><i class="ti ti-file-spreadsheet"></i>CSV</button>
+      </div>
+      <div style="height:8px;"></div>
+      <button class="btn btn-ghost" data-action="import-json"><i class="ti ti-upload"></i>Import backup</button>
+      <input type="file" id="import-file" accept="application/json" style="display:none;">
+    </div>
+
+    <div class="card">
+      <div class="eyebrow" style="color:var(--danger);">Danger zone</div>
+      <button class="btn btn-danger" data-action="clear-data"><i class="ti ti-trash"></i>Erase all data</button>
+    </div>
+  `;
+}
+
+function timeAgo(date){
+  const days = Math.floor((Date.now()-date.getTime())/86400000);
+  if(days<=0) return "today";
+  if(days===1) return "1 day ago";
+  return days + " days ago";
+}
+
+/* ---------- Toast ---------- */
+function toast(msg){
+  const t = document.createElement("div");
+  t.className = "toast"; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=> t.remove(), 2200);
+}
+
+/* ---------- Modal helpers ---------- */
+function closeModal(){ document.getElementById("modal-root").innerHTML = ""; }
+function openModal(html, opts){
+  const overlay = document.createElement("div");
+  overlay.className = "modal-overlay" + (opts && opts.center ? " center" : "");
+  overlay.innerHTML = html;
+  overlay.addEventListener("click", (e)=>{ if(e.target === overlay) closeModal(); });
+  const root = document.getElementById("modal-root");
+  root.innerHTML = "";
+  root.appendChild(overlay);
+  return overlay;
+}
+
+/* ---------- Entry form (new / edit) ---------- */
+function recentCustomerIds(limit){
+  const seen = new Set(); const out = [];
+  const sorted = [...state.entries].sort((a,b)=> b.dateTime.localeCompare(a.dateTime));
+  for(const e of sorted){ if(!seen.has(e.customerId)){ seen.add(e.customerId); out.push(e.customerId); } if(out.length>=limit) break; }
+  return out;
+}
+
+function defaultEntryDate(){
+  if(state.pinnedDate) return state.pinnedDate;
+  return toISODate(currentViewDate());
+}
+
+function openEntryForm(existingId){
+  const editing = existingId ? state.entries.find(e=>e.id===existingId) : null;
+  const cust = editing ? getCustomer(editing.customerId) : null;
+  const form = {
+    id: editing ? editing.id : null,
+    customerId: editing ? editing.customerId : null,
+    customerName: editing ? (cust ? cust.name : "") : "",
+    date: editing ? editing.dateTime.slice(0,10) : defaultEntryDate(),
+    time: editing ? editing.dateTime.slice(11,16) : fmtTime24(new Date()),
+    price: editing ? editing.price : "",
+    tip: editing ? editing.tip : "",
+    paymentMethod: editing ? editing.paymentMethod : state.settings.paymentMethods[0],
+    description: editing ? (editing.description||"") : "",
+    depositApplied: editing ? !!editing.depositAppliedAmount : false,
+    depositAmount: editing ? (editing.depositAppliedAmount||"") : ""
+  };
+
+  const recentChips = recentCustomerIds(3).map(id=>{
+    const c = getCustomer(id); if(!c) return "";
+    return `<div class="chip" data-recent-cust="${c.id}">${escapeHtml(c.name)}</div>`;
+  }).join("");
+
+  const html = `<div class="sheet" id="entry-sheet">
+    <div class="header" style="margin-bottom:12px;">
+      <div></div>
+      <div class="header-title">${editing? "Edit payment" : "New payment"}</div>
+      <i class="ti ti-x header-icon right" data-action="close-modal"></i>
+    </div>
+
+    ${!editing ? `<div class="eyebrow">Logging for</div>
+    <div class="date-row">
+      <input type="date" id="f-date" class="date-chip-input" value="${form.date}">
+      <input type="time" id="f-time" class="date-chip-input" value="${form.time}">
+    </div>` : `<div class="date-row">
+      <input type="date" id="f-date" class="date-chip-input" value="${form.date}">
+      <input type="time" id="f-time" class="date-chip-input" value="${form.time}">
+    </div>`}
+
+    <div class="field">
+      <div class="eyebrow">Customer</div>
+      <div class="search-box" style="margin-bottom:6px;">
+        <i class="ti ti-search" style="color:var(--text-secondary);font-size:15px;"></i>
+        <input id="f-customer" placeholder="Search or type a new name" value="${escapeHtml(form.customerName)}" autocomplete="off">
+      </div>
+      <div id="cust-suggestions"></div>
+      ${recentChips ? `<div class="chip-row" style="margin-top:6px;margin-bottom:0;">${recentChips}<div class="chip" data-action="new-customer-chip">+ New</div></div>` : ""}
+    </div>
+
+    <div class="row" style="gap:10px;">
+      <div class="field" style="flex:1;">
+        <div class="eyebrow">Price</div>
+        <input id="f-price" type="number" inputmode="decimal" min="0" step="1" placeholder="0" value="${form.price}">
+      </div>
+      <div class="field" style="flex:1;">
+        <div class="eyebrow">Tip</div>
+        <input id="f-tip" type="number" inputmode="decimal" min="0" step="1" placeholder="0" value="${form.tip}">
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="eyebrow">Payment method</div>
+      <select id="f-payment">${state.settings.paymentMethods.map(m=> `<option value="${escapeHtml(m)}" ${m===form.paymentMethod?"selected":""}>${escapeHtml(m)}</option>`).join("")}</select>
+    </div>
+
+    <div id="deposit-block"></div>
+
+    <div class="field">
+      <div class="eyebrow">Description</div>
+      <input id="f-description" placeholder="e.g. Small script, forearm" value="${escapeHtml(form.description)}">
+    </div>
+
+    <div id="f-error" class="err" style="display:none;"></div>
+
+    <button class="btn btn-primary" data-action="save-entry" style="margin-bottom:10px;">Save payment</button>
+    ${editing ? `<button class="btn btn-danger" data-action="delete-entry" data-id="${editing.id}">Delete payment</button>` :
+      `<div id="save-another-wrap"></div>`}
+  </div>`;
+
+  const overlay = openModal(html);
+  overlay._form = form;
+  refreshCustomerField(overlay);
+  refreshDepositBlock(overlay);
+  refreshSaveAnother(overlay);
+  bindEntryFormEvents(overlay, editing);
+}
+
+function fmtTime24(d){ return String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0"); }
+
+function refreshCustomerField(overlay){
+  const input = overlay.querySelector("#f-customer");
+  const box = overlay.querySelector("#cust-suggestions");
+  const q = input.value.trim().toLowerCase();
+  if(!q){ box.innerHTML = ""; overlay._form.customerId = null; overlay._form.customerName = ""; return; }
+  const matches = state.customers.filter(c => c.name.toLowerCase().includes(q)).slice(0,5);
+  const exact = state.customers.find(c => c.name.toLowerCase() === q);
+  overlay._form.customerId = exact ? exact.id : null;
+  overlay._form.customerName = input.value.trim();
+  if(matches.length){
+    box.innerHTML = `<div class="card" style="padding:4px 10px;margin-bottom:0;">${matches.map(c=>
+      `<div class="list-row" style="padding:8px 0;cursor:pointer;" data-pick-cust="${c.id}"><div class="avatar" style="width:24px;height:24px;font-size:10px;">${initials(c.name)}</div><div class="name" style="font-size:13px;">${escapeHtml(c.name)}</div></div>`
+    ).join("")}</div>`;
+  } else { box.innerHTML = ""; }
+  refreshDepositBlock(overlay);
+}
+
+function refreshDepositBlock(overlay){
+  const block = overlay.querySelector("#deposit-block");
+  const form = overlay._form;
+  const bal = form.customerId ? depositBalance(form.customerId) : 0;
+  if(!form.customerId || bal<=0){ block.innerHTML = ""; form.depositApplied = false; return; }
+  block.innerHTML = `
+    <div class="field">
+      <div class="row" style="gap:8px;margin-bottom:${form.depositApplied?'10px':'0'};">
+        <div class="toggle ${form.depositApplied?'on':''}" id="f-deposit-toggle"><div class="knob"></div></div>
+        <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Deposit applied</span>
+      </div>
+      ${form.depositApplied ? `<input id="f-deposit-amount" type="number" inputmode="decimal" min="0" max="${bal}" step="1" value="${form.depositAmount || bal}" placeholder="Amount">
+      <div class="meta" style="margin-top:4px;">of ${fmtMoney(bal)} held</div>` : ""}
+    </div>`;
+  const toggle = block.querySelector("#f-deposit-toggle");
+  if(toggle) toggle.addEventListener("click", ()=>{ form.depositApplied = !form.depositApplied; if(!form.depositAmount) form.depositAmount = bal; refreshDepositBlock(overlay); });
+}
+
+function refreshSaveAnother(overlay){
+  const wrap = overlay.querySelector("#save-another-wrap");
+  if(!wrap) return;
+  const dateVal = overlay.querySelector("#f-date").value;
+  if(dateVal !== toISODate(todayDateObj())){
+    const d = new Date(dateVal+"T00:00:00");
+    wrap.innerHTML = `<div style="text-align:center;color:var(--text-secondary);font-size:11px;text-transform:uppercase;letter-spacing:0.3px;cursor:pointer;" data-action="save-and-another">Save &amp; add another for ${fmtDateShort(d).toUpperCase()}</div>`;
+  } else wrap.innerHTML = "";
+}
+
+function bindEntryFormEvents(overlay, editing){
+  const form = overlay._form;
+  overlay.querySelector("#f-customer").addEventListener("input", ()=> refreshCustomerField(overlay));
+  overlay.querySelector("#f-date").addEventListener("change", (e)=>{
+    if(e.target.value !== toISODate(todayDateObj())) state.pinnedDate = e.target.value; else state.pinnedDate = null;
+    refreshSaveAnother(overlay);
+  });
+  overlay.querySelector("#f-time").addEventListener("change", ()=> refreshSaveAnother(overlay));
+
+  overlay.addEventListener("click", (e)=>{
+    const pick = e.target.closest("[data-pick-cust]");
+    if(pick){
+      const c = getCustomer(pick.dataset.pickCust);
+      overlay.querySelector("#f-customer").value = c.name;
+      overlay.querySelector("#cust-suggestions").innerHTML = "";
+      form.customerId = c.id; form.customerName = c.name;
+      refreshDepositBlock(overlay);
+      return;
+    }
+    const recentChip = e.target.closest("[data-recent-cust]");
+    if(recentChip){
+      const c = getCustomer(recentChip.dataset.recentCust);
+      overlay.querySelector("#f-customer").value = c.name;
+      overlay.querySelector("#cust-suggestions").innerHTML = "";
+      form.customerId = c.id; form.customerName = c.name;
+      refreshDepositBlock(overlay);
+      return;
+    }
+    if(e.target.closest("[data-action='new-customer-chip']")){
+      overlay.querySelector("#f-customer").value = "";
+      overlay.querySelector("#f-customer").focus();
+      form.customerId = null; form.customerName = "";
+      refreshDepositBlock(overlay);
+      return;
+    }
+    if(e.target.closest("[data-action='close-modal']")){ closeModal(); return; }
+    if(e.target.closest("[data-action='delete-entry']")){
+      confirmDialog("Delete this payment?", "This can't be undone.", ()=>{
+        idbDelete("entries", editing.id).then(()=>{
+          state.entries = state.entries.filter(x=>x.id!==editing.id);
+          closeModal(); render(); toast("Payment deleted");
+        });
+      });
+      return;
+    }
+    if(e.target.closest("[data-action='save-entry']")){ doSaveEntry(overlay, editing, false); return; }
+    if(e.target.closest("[data-action='save-and-another']")){ doSaveEntry(overlay, editing, true); return; }
+  });
+}
+
+function doSaveEntry(overlay, editing, addAnother){
+  const form = overlay._form;
+  const errBox = overlay.querySelector("#f-error");
+  errBox.style.display = "none";
+  const name = overlay.querySelector("#f-customer").value.trim();
+  const date = overlay.querySelector("#f-date").value;
+  const time = overlay.querySelector("#f-time").value;
+  const price = parseFloat(overlay.querySelector("#f-price").value);
+  const tip = parseFloat(overlay.querySelector("#f-tip").value) || 0;
+  const paymentMethod = overlay.querySelector("#f-payment").value;
+  const description = overlay.querySelector("#f-description").value.trim();
+  const depositToggle = overlay.querySelector("#f-deposit-toggle");
+  const depositApplied = depositToggle ? depositToggle.classList.contains("on") : false;
+  const depositAmountInput = overlay.querySelector("#f-deposit-amount");
+  const depositAmount = depositAmountInput ? parseFloat(depositAmountInput.value) : 0;
+
+  if(!name){ return showFormError(errBox, "Enter a customer name first."); }
+  if(!date || !time){ return showFormError(errBox, "Enter a date and time."); }
+  if(isNaN(price) || price < 0){ return showFormError(errBox, "Enter a valid price."); }
+  if(depositApplied){
+    const bal = form.customerId ? depositBalance(form.customerId) : 0;
+    if(isNaN(depositAmount) || depositAmount<=0 || depositAmount>bal){ return showFormError(errBox, "Deposit amount must be between $0 and " + fmtMoney(bal) + "."); }
+  }
+
+  let customerId = form.customerId;
+  const proceed = () => {
+    const dateTime = `${date}T${time}`;
+    if(editing){
+      const before = {...editing};
+      const updated = {...editing, customerId, dateTime, price, tip, paymentMethod, description};
+      const changes = [];
+      [["customerId","Customer"],["dateTime","Date/time"],["price","Price"],["tip","Tip"],["paymentMethod","Payment method"],["description","Description"]].forEach(([k,label])=>{
+        if(String(before[k]) !== String(updated[k])){
+          let from = before[k], to = updated[k];
+          if(k==="customerId"){ from = getCustomer(from)?.name || from; to = getCustomer(to)?.name || to; }
+          if(k==="dateTime"){ from = fmtDateShort(new Date(from))+" "+fmtTime(new Date(from)); to = fmtDateShort(new Date(to))+" "+fmtTime(new Date(to)); }
+          if(k==="price" || k==="tip"){ from = fmtMoney(from); to = fmtMoney(to); }
+          changes.push({field:label, from, to});
+        }
+      });
+      if(changes.length){
+        updated.editHistory = [...(editing.editHistory||[]), {timestamp: Date.now(), changes}];
+      }
+      idbPut("entries", updated).then(()=>{
+        state.entries = state.entries.map(e=> e.id===updated.id ? updated : e);
+        closeModal(); render(); toast("Payment updated");
+      });
+    } else {
+      const entry = { id: uid(), customerId, dateTime, price, tip, paymentMethod, description, depositAppliedAmount: depositApplied?depositAmount:0, editHistory: [] };
+      idbPut("entries", entry).then(()=>{
+        state.entries.push(entry);
+        if(depositApplied && depositAmount>0){
+          const ledger = { id: uid(), customerId, type:"applied", amount: depositAmount, dateTime, note:"Applied to session", appliedToEntryId: entry.id };
+          idbPut("deposits", ledger).then(()=>{ state.deposits.push(ledger); finishSave(); });
+        } else finishSave();
+      });
+    }
+    function finishSave(){
+      if(date === toISODate(todayDateObj())) state.pinnedDate = null;
+      if(addAnother){
+        closeModal(); render(); openEntryForm(); toast("Payment saved");
+      } else { closeModal(); render(); toast("Payment saved"); }
+    }
+  };
+
+  if(!customerId){
+    const existing = state.customers.find(c=> c.name.toLowerCase()===name.toLowerCase());
+    if(existing){ customerId = existing.id; proceed(); }
+    else {
+      const c = { id: uid(), name, createdAt: Date.now() };
+      idbPut("customers", c).then(()=>{ state.customers.push(c); customerId = c.id; proceed(); });
+    }
+  } else proceed();
+}
+
+function showFormError(box, msg){ box.textContent = msg; box.style.display = "block"; }
+
+/* ---------- Edit history modal ---------- */
+function openEditHistory(entryId){
+  const e = state.entries.find(x=>x.id===entryId);
+  if(!e || !e.editHistory || !e.editHistory.length){ return; }
+  const items = [...e.editHistory].reverse().map(h=>{
+    const dt = new Date(h.timestamp);
+    const changes = h.changes.map(c=> `<div style="font-size:12px;margin-top:2px;"><span style="color:var(--text-secondary);">${c.field}:</span> ${escapeHtml(String(c.from||"—"))} &rarr; ${escapeHtml(String(c.to||"—"))}</div>`).join("");
+    return `<div class="card" style="margin-bottom:8px;"><div class="meta" style="margin-bottom:4px;">${fmtDateShort(dt)} · ${fmtTime(dt)}</div>${changes}</div>`;
+  }).join("");
+  openModal(`<div class="dialog">
+    <div class="header" style="margin-bottom:10px;"><div></div><div class="header-title">Edit history</div><i class="ti ti-x header-icon right" data-action="close-modal"></i></div>
+    <div style="max-height:60vh;overflow-y:auto;">${items}</div>
+  </div>`, {center:true});
+  document.querySelector(".modal-overlay").addEventListener("click", (e)=>{ if(e.target.closest("[data-action='close-modal']")) closeModal(); });
+}
+
+/* ---------- Confirm dialog ---------- */
+function confirmDialog(title, body, onConfirm){
+  openModal(`<div class="dialog">
+    <div style="font-size:15px;font-weight:700;margin-bottom:6px;">${escapeHtml(title)}</div>
+    <div style="color:var(--text-secondary);font-size:13px;margin-bottom:16px;">${escapeHtml(body)}</div>
+    <div class="row" style="gap:8px;">
+      <button class="btn btn-secondary" data-action="cancel">Cancel</button>
+      <button class="btn btn-danger" data-action="confirm">Confirm</button>
+    </div>
+  </div>`, {center:true});
+  const overlay = document.querySelector(".modal-overlay");
+  overlay.addEventListener("click", (e)=>{
+    if(e.target.closest("[data-action='cancel']")) closeModal();
+    if(e.target.closest("[data-action='confirm']")){ closeModal(); onConfirm(); }
+  });
+}
+
+/* ---------- Deposit dialogs ---------- */
+function openNewDeposit(){
+  const recentChips = recentCustomerIds(3).map(id=>{
+    const c = getCustomer(id); if(!c) return "";
+    return `<div class="chip" data-recent-cust="${c.id}">${escapeHtml(c.name)}</div>`;
+  }).join("");
+  openModal(`<div class="sheet">
+    <div class="header" style="margin-bottom:12px;"><div></div><div class="header-title">New deposit</div><i class="ti ti-x header-icon right" data-action="close-modal"></i></div>
+    <div class="field">
+      <div class="eyebrow">Customer</div>
+      <div class="search-box" style="margin-bottom:6px;">
+        <i class="ti ti-search" style="color:var(--text-secondary);font-size:15px;"></i>
+        <input id="dep-customer" placeholder="Search or type a new name" autocomplete="off">
+      </div>
+      <div id="dep-cust-suggestions"></div>
+      ${recentChips ? `<div class="chip-row" style="margin-top:6px;margin-bottom:0;">${recentChips}</div>` : ""}
+    </div>
+    <div class="field"><div class="eyebrow">Amount</div><input id="dep-amount" type="number" inputmode="decimal" min="0" step="1" placeholder="0"></div>
+    <div class="field"><div class="eyebrow">Note</div><input id="dep-note" placeholder="Optional"></div>
+    <div id="dep-error" class="err" style="display:none;"></div>
+    <button class="btn btn-primary" data-action="save-new-deposit">Save deposit</button>
+  </div>`);
+  const overlay = document.querySelector(".modal-overlay");
+  let pickedId = null;
+  const custInput = overlay.querySelector("#dep-customer");
+  const suggBox = overlay.querySelector("#dep-cust-suggestions");
+  custInput.addEventListener("input", ()=>{
+    pickedId = null;
+    const q = custInput.value.trim().toLowerCase();
+    if(!q){ suggBox.innerHTML = ""; return; }
+    const matches = state.customers.filter(c=> c.name.toLowerCase().includes(q)).slice(0,5);
+    suggBox.innerHTML = matches.length ? `<div class="card" style="padding:4px 10px;margin-bottom:0;">${matches.map(c=>
+      `<div class="list-row" style="padding:8px 0;cursor:pointer;" data-pick-cust="${c.id}"><div class="avatar" style="width:24px;height:24px;font-size:10px;">${initials(c.name)}</div><div class="name" style="font-size:13px;">${escapeHtml(c.name)}</div></div>`
+    ).join("")}</div>` : "";
+  });
+  overlay.addEventListener("click", (e)=>{
+    if(e.target.closest("[data-action='close-modal']")){ closeModal(); return; }
+    const pick = e.target.closest("[data-pick-cust]");
+    if(pick){ const c = getCustomer(pick.dataset.pickCust); custInput.value = c.name; pickedId = c.id; suggBox.innerHTML = ""; return; }
+    const recent = e.target.closest("[data-recent-cust]");
+    if(recent){ const c = getCustomer(recent.dataset.recentCust); custInput.value = c.name; pickedId = c.id; suggBox.innerHTML = ""; return; }
+    if(e.target.closest("[data-action='save-new-deposit']")){
+      const name = custInput.value.trim();
+      const amt = parseFloat(document.getElementById("dep-amount").value);
+      const note = document.getElementById("dep-note").value.trim();
+      const err = document.getElementById("dep-error");
+      if(!name){ err.textContent = "Enter a customer name."; err.style.display="block"; return; }
+      if(isNaN(amt) || amt<=0){ err.textContent = "Enter a valid amount."; err.style.display="block"; return; }
+      const proceed = (customerId) => {
+        const ledger = { id: uid(), customerId, type:"taken", amount: amt, dateTime: new Date().toISOString(), note };
+        idbPut("deposits", ledger).then(()=>{ state.deposits.push(ledger); closeModal(); render(); toast("Deposit recorded"); });
+      };
+      if(pickedId){ proceed(pickedId); return; }
+      const existing = state.customers.find(c=> c.name.toLowerCase()===name.toLowerCase());
+      if(existing){ proceed(existing.id); }
+      else { const c = { id: uid(), name, createdAt: Date.now() }; idbPut("customers", c).then(()=>{ state.customers.push(c); proceed(c.id); }); }
+    }
+  });
+}
+
+
+function openTakeDeposit(customerId){
+  openModal(`<div class="dialog">
+    <div style="font-size:15px;font-weight:700;margin-bottom:12px;">Take deposit</div>
+    <div class="field"><div class="eyebrow">Amount</div><input id="dep-amount" type="number" inputmode="decimal" min="0" step="1" placeholder="0"></div>
+    <div class="field"><div class="eyebrow">Note</div><input id="dep-note" placeholder="Optional"></div>
+    <div id="dep-error" class="err" style="display:none;"></div>
+    <button class="btn btn-primary" data-action="save-deposit">Save deposit</button>
+  </div>`, {center:true});
+  const overlay = document.querySelector(".modal-overlay");
+  overlay.addEventListener("click", (e)=>{
+    if(e.target.closest("[data-action='save-deposit']")){
+      const amt = parseFloat(document.getElementById("dep-amount").value);
+      const note = document.getElementById("dep-note").value.trim();
+      const err = document.getElementById("dep-error");
+      if(isNaN(amt) || amt<=0){ err.textContent = "Enter a valid amount."; err.style.display="block"; return; }
+      const ledger = { id: uid(), customerId, type:"taken", amount: amt, dateTime: new Date().toISOString(), note };
+      idbPut("deposits", ledger).then(()=>{ state.deposits.push(ledger); closeModal(); render(); toast("Deposit recorded"); });
+    }
+  });
+}
+
+function openDepositManage(customerId){
+  const bal = depositBalance(customerId);
+  openModal(`<div class="dialog">
+    <div style="font-size:15px;font-weight:700;margin-bottom:12px;">Manage deposit — ${fmtMoney(bal)}</div>
+    <button class="btn btn-secondary" data-action="dep-refund" style="margin-bottom:8px;">Refund</button>
+    <button class="btn btn-secondary" data-action="dep-noshow">Log no-show / cancel</button>
+  </div>`, {center:true});
+  const overlay = document.querySelector(".modal-overlay");
+  overlay.addEventListener("click", (e)=>{
+    if(e.target.closest("[data-action='dep-refund']")) openRefundForm(customerId, bal);
+    if(e.target.closest("[data-action='dep-noshow']")) openNoShowForm(customerId, bal);
+  });
+}
+
+function openRefundForm(customerId, bal){
+  openModal(`<div class="dialog">
+    <div style="font-size:15px;font-weight:700;margin-bottom:12px;">Refund deposit</div>
+    <div class="field"><div class="eyebrow">Amount (of ${fmtMoney(bal)})</div><input id="dep-amount" type="number" min="0" max="${bal}" step="1" value="${bal}"></div>
+    <div class="field"><div class="eyebrow">Note</div><input id="dep-note" placeholder="Optional"></div>
+    <div id="dep-error" class="err" style="display:none;"></div>
+    <button class="btn btn-primary" data-action="save-refund">Confirm refund</button>
+  </div>`, {center:true});
+  document.querySelector(".modal-overlay").addEventListener("click", (e)=>{
+    if(e.target.closest("[data-action='save-refund']")){
+      const amt = parseFloat(document.getElementById("dep-amount").value);
+      const note = document.getElementById("dep-note").value.trim();
+      const err = document.getElementById("dep-error");
+      if(isNaN(amt) || amt<=0 || amt>bal){ err.textContent = "Enter an amount up to " + fmtMoney(bal) + "."; err.style.display="block"; return; }
+      const ledger = { id: uid(), customerId, type:"refunded", amount: amt, dateTime: new Date().toISOString(), note };
+      idbPut("deposits", ledger).then(()=>{ state.deposits.push(ledger); closeModal(); render(); toast("Refund recorded"); });
+    }
+  });
+}
+
+function openNoShowForm(customerId, bal){
+  openModal(`<div class="dialog">
+    <div style="font-size:15px;font-weight:700;margin-bottom:12px;">Log no-show / cancel</div>
+    <div class="field"><div class="eyebrow">Resolution</div>
+      <div class="pill-select"><div class="active" data-res="kept">Keep deposit</div><div data-res="waived">Give a pass</div></div>
+    </div>
+    <div class="field" id="dep-amt-wrap"><div class="eyebrow">Amount (of ${fmtMoney(bal)})</div><input id="dep-amount" type="number" min="0" max="${bal}" step="1" value="${bal}"></div>
+    <div class="field"><div class="eyebrow">Note</div><input id="dep-note" placeholder="e.g. no call no show"></div>
+    <div id="dep-error" class="err" style="display:none;"></div>
+    <button class="btn btn-primary" data-action="save-noshow">Save</button>
+  </div>`, {center:true});
+  let resolution = "kept";
+  const overlay = document.querySelector(".modal-overlay");
+  overlay.addEventListener("click", (e)=>{
+    const res = e.target.closest("[data-res]");
+    if(res){
+      resolution = res.dataset.res;
+      overlay.querySelectorAll("[data-res]").forEach(x=> x.classList.toggle("active", x===res));
+      document.getElementById("dep-amt-wrap").style.display = resolution==="kept" ? "block" : "none";
+      return;
+    }
+    if(e.target.closest("[data-action='save-noshow']")){
+      const note = document.getElementById("dep-note").value.trim();
+      let amt = 0;
+      if(resolution === "kept"){
+        amt = parseFloat(document.getElementById("dep-amount").value);
+        const err = document.getElementById("dep-error");
+        if(isNaN(amt) || amt<=0 || amt>bal){ err.textContent = "Enter an amount up to " + fmtMoney(bal) + "."; err.style.display="block"; return; }
+      }
+      const ledger = { id: uid(), customerId, type:"no_show", resolution, amount: amt, dateTime: new Date().toISOString(), note };
+      idbPut("deposits", ledger).then(()=>{ state.deposits.push(ledger); closeModal(); render(); toast("Logged"); });
+    }
+  });
+}
+
+/* ---------- Backup: export / import ---------- */
+function downloadBlob(content, filename, mime){
+  const blob = new Blob([content], {type:mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=> URL.revokeObjectURL(url), 2000);
+}
+
+function exportJSON(){
+  const payload = { version:1, exportedAt: new Date().toISOString(), customers: state.customers, entries: state.entries, deposits: state.deposits, settings: state.settings };
+  downloadBlob(JSON.stringify(payload, null, 2), `ledg-backup-${toISODate(new Date())}.json`, "application/json");
+  state.settings.lastBackupAt = Date.now();
+  saveSettings(); render(); toast("Backup exported");
+}
+
+function exportCSV(){
+  const header = ["Date","Time","Customer","Description","Price","Tip","Payment method","Deposit applied"];
+  const rows = [...state.entries].sort((a,b)=> a.dateTime.localeCompare(b.dateTime)).map(e=>{
+    const c = getCustomer(e.customerId);
+    const d = new Date(e.dateTime);
+    return [toISODate(d), fmtTime(d), c?c.name:"", e.description||"", e.price, e.tip, e.paymentMethod, e.depositAppliedAmount||0]
+      .map(v => `"${String(v).replace(/"/g,'""')}"`).join(",");
+  });
+  downloadBlob([header.join(","), ...rows].join("\n"), `ledg-entries-${toISODate(new Date())}.csv`, "text/csv");
+  toast("CSV exported");
+}
+
+function importJSON(file){
+  const reader = new FileReader();
+  reader.onload = () => {
+    let data;
+    try{ data = JSON.parse(reader.result); } catch(e){ toast("That file isn't valid JSON."); return; }
+    if(!data || !Array.isArray(data.entries) || !Array.isArray(data.customers)){ toast("That doesn't look like a backup file."); return; }
+    confirmDialog("Import backup?", "This replaces all current data with the backup file's contents.", async ()=>{
+      const stores = ["customers","entries","deposits"];
+      for(const s of stores){
+        const all = await idbGetAll(s);
+        for(const item of all) await idbDelete(s, item.id);
+      }
+      for(const c of data.customers) await idbPut("customers", c);
+      for(const e of data.entries) await idbPut("entries", e);
+      for(const d of (data.deposits||[])) await idbPut("deposits", d);
+      if(data.settings) await idbPut("meta", {...DEFAULT_SETTINGS, ...data.settings, id:"settings"});
+      await loadAll();
+      state.tab = "today"; state.todayOffset = 0; state.pinnedDate = null;
+      render(); toast("Backup imported");
+    });
+  };
+  reader.readAsText(file);
+}
+
+/* ---------- Settings interactions ---------- */
+function openAddMethodDialog(){
+  openModal(`<div class="dialog">
+    <div style="font-size:15px;font-weight:700;margin-bottom:12px;">Add payment method</div>
+    <div class="field"><input id="method-name" placeholder="e.g. Zelle" maxlength="16"></div>
+    <div id="method-error" class="err" style="display:none;"></div>
+    <button class="btn btn-primary" data-action="save-method">Add</button>
+  </div>`, {center:true});
+  document.querySelector(".modal-overlay").addEventListener("click", (e)=>{
+    if(e.target.closest("[data-action='save-method']")){
+      const name = document.getElementById("method-name").value.trim();
+      const err = document.getElementById("method-error");
+      if(!name){ err.textContent="Enter a name."; err.style.display="block"; return; }
+      if(state.settings.paymentMethods.some(m=>m.toLowerCase()===name.toLowerCase())){ err.textContent="That method already exists."; err.style.display="block"; return; }
+      state.settings.paymentMethods.push(name);
+      saveSettings().then(()=>{ closeModal(); render(); });
+    }
+  });
+}
+
+function openEditMethodDialog(name){
+  openModal(`<div class="dialog">
+    <div style="font-size:15px;font-weight:700;margin-bottom:12px;">${escapeHtml(name)}</div>
+    <div class="field"><input id="method-name" value="${escapeHtml(name)}" maxlength="16"></div>
+    <div id="method-error" class="err" style="display:none;"></div>
+    <div class="row" style="gap:8px;">
+      <button class="btn btn-danger" data-action="remove-method">Remove</button>
+      <button class="btn btn-primary" data-action="rename-method">Save</button>
+    </div>
+  </div>`, {center:true});
+  document.querySelector(".modal-overlay").addEventListener("click", (e)=>{
+    if(e.target.closest("[data-action='remove-method']")){
+      if(state.settings.paymentMethods.length<=1){ toast("Keep at least one payment method."); return; }
+      state.settings.paymentMethods = state.settings.paymentMethods.filter(m=>m!==name);
+      saveSettings().then(()=>{ closeModal(); render(); });
+    }
+    if(e.target.closest("[data-action='rename-method']")){
+      const newName = document.getElementById("method-name").value.trim();
+      const err = document.getElementById("method-error");
+      if(!newName){ err.textContent="Enter a name."; err.style.display="block"; return; }
+      state.settings.paymentMethods = state.settings.paymentMethods.map(m=> m===name? newName : m);
+      state.entries.forEach(e=>{ if(e.paymentMethod===name) e.paymentMethod = newName; });
+      Promise.all(state.entries.filter(e=>e.paymentMethod===newName).map(e=> idbPut("entries", e)))
+        .then(()=> saveSettings()).then(()=>{ closeModal(); render(); });
+    }
+  });
+}
+
+/* ---------- Screen-level event binding ---------- */
+function bindScreenEvents(){
+  const el = document.getElementById("screen");
+
+  const searchInput = document.getElementById("customer-search");
+  if(searchInput) searchInput.addEventListener("input", (e)=>{ state.customerSearch = e.target.value; render(); preserveFocus("customer-search"); });
+
+  const yearSelect = document.getElementById("year-select");
+  if(yearSelect) yearSelect.addEventListener("change", (e)=>{ state.analyticsYear = parseInt(e.target.value,10); render(); });
+
+  const weekStart = document.getElementById("week-start");
+  if(weekStart) weekStart.addEventListener("change", (e)=>{ state.settings.weekStartDay = parseInt(e.target.value,10); saveSettings(); });
+  const weekEnd = document.getElementById("week-end");
+  if(weekEnd) weekEnd.addEventListener("change", (e)=>{ state.settings.weekEndDay = parseInt(e.target.value,10); saveSettings(); });
+
+  const importFile = document.getElementById("import-file");
+  if(importFile) importFile.addEventListener("change", (e)=>{ if(e.target.files[0]) importJSON(e.target.files[0]); });
+
+  el.onclick = (e)=>{
+    const t = (sel)=> e.target.closest(sel);
+    if(t("[data-action='new-entry']")) return openEntryForm();
+    if(t("[data-action='open-entry']")) return openEntryForm(t("[data-action='open-entry']").dataset.id);
+    if(t("[data-action='edit-history']")) return openEditHistory(t("[data-action='edit-history']").dataset.id);
+    if(t("[data-action='day-back']")){ state.todayOffset++; return render(); }
+    if(t("[data-action='day-fwd']")){ if(state.todayOffset>0){ state.todayOffset--; render(); } return; }
+    if(t("[data-action='clear-pin']")){ state.pinnedDate=null; return render(); }
+    if(t("[data-action='open-profile']")){ state.profileCustomerId = t("[data-action='open-profile']").dataset.id; state.tab="profile"; return render(); }
+    if(t("[data-action='back-to-customers']")){ state.tab="customers"; return render(); }
+    if(t("[data-action='delete-customer']")){
+      const id = t("[data-action='delete-customer']").dataset.id;
+      confirmDialog("Delete customer?", "This removes the customer but keeps their past entries on record.", ()=>{
+        idbDelete("customers", id).then(()=>{ state.customers = state.customers.filter(c=>c.id!==id); state.tab="customers"; render(); toast("Customer deleted"); });
+      });
+      return;
+    }
+    if(t("[data-action='take-deposit']")) return openTakeDeposit(t("[data-action='take-deposit']").dataset.id);
+    if(t("[data-action='deposit-action']")) return openDepositManage(t("[data-action='deposit-action']").dataset.id);
+    if(t("[data-action='edit-method']")) return openEditMethodDialog(t("[data-action='edit-method']").dataset.name);
+    if(t("[data-action='add-method']")) return openAddMethodDialog();
+    if(t("[data-action='set-accent']")){ state.settings.accentColor = t("[data-action='set-accent']").dataset.val; return saveSettings().then(render); }
+    if(t("[data-action='set-font']")){ state.settings.font = t("[data-action='set-font']").dataset.val; return saveSettings().then(render); }
+    if(t("[data-action='set-nav-style']")){ state.settings.navStyle = t("[data-action='set-nav-style']").dataset.val; return saveSettings().then(render); }
+    if(t("[data-action='new-deposit']")) return openNewDeposit();
+    if(t("[data-action='export-json']")) return exportJSON();
+    if(t("[data-action='export-csv']")) return exportCSV();
+    if(t("[data-action='import-json']")) return document.getElementById("import-file").click();
+    if(t("[data-action='clear-data']")){
+      confirmDialog("Erase all data?", "This deletes every customer, entry, and deposit. This can't be undone — export a backup first if unsure.", async ()=>{
+        for(const s of ["customers","entries","deposits"]){
+          const all = await idbGetAll(s);
+          for(const item of all) await idbDelete(s, item.id);
+        }
+        await idbPut("meta", {...DEFAULT_SETTINGS});
+        await loadAll();
+        state.tab="today"; render(); toast("All data erased");
+      });
+      return;
+    }
+  };
+}
+
+function preserveFocus(id){ const elx = document.getElementById(id); if(elx){ elx.focus(); const v=elx.value; elx.value=""; elx.value=v; } }
+
+/* ---------- Nav & boot ---------- */
+document.querySelectorAll(".nav-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    const tab = btn.dataset.tab;
+    if(tab !== "today"){ state.pinnedDate = null; state.todayOffset = 0; }
+    state.tab = tab;
+    render();
+  });
+});
+
+loadAll().then(render).catch(err=>{
+  document.getElementById("screen").innerHTML = `<div class="empty"><i class="ti ti-alert-triangle"></i>Couldn't open the local database.<br>${escapeHtml(err.message||String(err))}</div>`;
+});
+
+})();
+</script>
+</body>
+</html>
