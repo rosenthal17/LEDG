@@ -66,7 +66,7 @@
   .amount{ font-size:14px; font-weight:700; white-space:nowrap; }
   .bottom-nav{ position:fixed; bottom:0; left:0; right:0; background:var(--surface); border-top:1px solid var(--border);
     display:flex; justify-content:space-around; padding:10px 0 calc(10px + env(safe-area-inset-bottom)); z-index:20; }
-  .nav-btn{ display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--text-muted); font-size:9px; text-transform:uppercase; letter-spacing:0.4px; padding:4px 10px; }
+  .nav-btn{ display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--text-muted); font-size:8.5px; text-transform:uppercase; letter-spacing:0.3px; padding:4px 4px; flex:1; }
   .nav-btn.active{ color:var(--accent); }
   .nav-btn i{ font-size:20px; }
 
@@ -89,9 +89,12 @@
   .ti-upload{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M12%2021V9m0%200l-4%204m4-4l4%204M4%205h16%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M12%2021V9m0%200l-4%204m4-4l4%204M4%205h16%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E"); }
   .ti-file-spreadsheet{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M6%202h9l5%205v15a1%201%200%2001-1%201H6a1%201%200%2001-1-1V3a1%201%200%20011-1z%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linejoin%3D%22round%22/%3E%3Cpath%20d%3D%22M9%2012h6M9%2016h6M12%2012v8%22%20stroke%3D%22%23000%22%20stroke-width%3D%221.5%22/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M6%202h9l5%205v15a1%201%200%2001-1%201H6a1%201%200%2001-1-1V3a1%201%200%20011-1z%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linejoin%3D%22round%22/%3E%3Cpath%20d%3D%22M9%2012h6M9%2016h6M12%2012v8%22%20stroke%3D%22%23000%22%20stroke-width%3D%221.5%22/%3E%3C/svg%3E"); }
   .ti-alert-triangle{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M12%203L2%2020h20L12%203z%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linejoin%3D%22round%22/%3E%3Cline%20x1%3D%2212%22%20y1%3D%2210%22%20x2%3D%2212%22%20y2%3D%2214%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2217%22%20r%3D%221%22%20fill%3D%22%23000%22/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M12%203L2%2020h20L12%203z%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linejoin%3D%22round%22/%3E%3Cline%20x1%3D%2212%22%20y1%3D%2210%22%20x2%3D%2212%22%20y2%3D%2214%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2217%22%20r%3D%221%22%20fill%3D%22%23000%22/%3E%3C/svg%3E"); }
+  .ti-calendar{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20x%3D%223%22%20y%3D%225%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%222%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22/%3E%3Cline%20x1%3D%223%22%20y1%3D%229%22%20x2%3D%2221%22%20y2%3D%229%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22/%3E%3Cline%20x1%3D%227%22%20y1%3D%223%22%20x2%3D%227%22%20y2%3D%227%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3Cline%20x1%3D%2217%22%20y1%3D%223%22%20x2%3D%2217%22%20y2%3D%227%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20x%3D%223%22%20y%3D%225%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%222%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22/%3E%3Cline%20x1%3D%223%22%20y1%3D%229%22%20x2%3D%2221%22%20y2%3D%229%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22/%3E%3Cline%20x1%3D%227%22%20y1%3D%223%22%20x2%3D%227%22%20y2%3D%227%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3Cline%20x1%3D%2217%22%20y1%3D%223%22%20x2%3D%2217%22%20y2%3D%227%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E"); }
   .bottom-nav.style-icons .nav-label{ display:none; }
   .bottom-nav.style-text .nav-btn i{ display:none; }
   .fab-row{ margin-bottom:14px; }
+  .fixed-cta{ position:fixed; left:0; right:0; bottom:78px; z-index:15; padding:10px 16px 14px; max-width:480px; margin:0 auto; background:linear-gradient(to top, var(--bg) 55%, transparent); }
+  .btn-big{ padding:30px 18px; font-size:22px; font-weight:800; border-radius:16px; letter-spacing:0.3px; }
   .search-box{ display:flex; align-items:center; gap:8px; background:var(--surface2); border-radius:10px; padding:9px 12px; margin-bottom:14px; }
   .search-box input{ background:none; border:none; padding:0; }
   .chip{ background:var(--surface2); color:var(--text-secondary); font-size:11px; padding:6px 11px; border-radius:20px; white-space:nowrap; cursor:pointer; }
@@ -117,6 +120,14 @@
   .swatch{ width:22px; height:22px; border-radius:50%; flex-shrink:0; cursor:pointer; }
   .swatch.selected{ border:2px solid var(--text); }
   .grid-4{ display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+  .cal-dow{ margin-bottom:4px; }
+  .cal-dow div{ text-align:center; font-size:9px; color:var(--text-muted); text-transform:uppercase; }
+  .cal-day{ aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; border-radius:9px; font-size:12px; color:var(--text); cursor:pointer; position:relative; background:var(--surface2); }
+  .cal-day.is-today{ box-shadow:inset 0 0 0 1.5px var(--accent); }
+  .cal-day.selected{ background:var(--accent); color:var(--accent-text); font-weight:700; }
+  .cal-dots{ display:flex; gap:2px; flex-wrap:wrap; justify-content:center; max-width:26px; }
+  .cal-dot{ width:4.5px; height:4.5px; border-radius:50%; flex-shrink:0; }
   .empty{ text-align:center; padding:40px 20px; color:var(--text-secondary); }
   .empty i{ font-size:32px; color:var(--text-muted); margin-bottom:10px; display:block; }
   .toast{ position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:var(--surface3); color:var(--text); padding:10px 18px; border-radius:30px; font-size:13px; z-index:60; }
@@ -134,6 +145,7 @@
   <button class="nav-btn" data-tab="today"><i class="ti ti-flame"></i><span class="nav-label">Today</span></button>
   <button class="nav-btn" data-tab="customers"><i class="ti ti-users"></i><span class="nav-label">Clients</span></button>
   <button class="nav-btn" data-tab="deposits"><i class="ti ti-wallet"></i><span class="nav-label">Deposits</span></button>
+  <button class="nav-btn" data-tab="payments"><i class="ti ti-calendar"></i><span class="nav-label">Payments</span></button>
   <button class="nav-btn" data-tab="analytics"><i class="ti ti-chart-bar"></i><span class="nav-label">Stats</span></button>
   <button class="nav-btn" data-tab="settings"><i class="ti ti-settings"></i><span class="nav-label">Settings</span></button>
 </nav>
@@ -222,8 +234,11 @@ const state = {
   todayOffset: 0,       // days back from real today, for day navigation
   pinnedDate: null,     // ISO date string (yyyy-mm-dd) when backdating a batch of entries
   customerSearch: "",
+  depositSearch: "",
   analyticsYear: null,
-  profileCustomerId: null
+  profileCustomerId: null,
+  paymentsMonth: null,       // Date, first of month being viewed
+  paymentsSelectedDate: null // ISO date string or null (show all)
 };
 
 /* ---------- Date helpers ---------- */
@@ -268,6 +283,7 @@ async function loadAll(){
   state.entries = await idbGetAll("entries");
   state.deposits = await idbGetAll("deposits");
   state.analyticsYear = new Date().getFullYear();
+  state.paymentsMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
   applyTheme();
 }
 function applyTheme(){
@@ -303,7 +319,15 @@ function noShowStats(customerId){
   return { count: list.length, kept: list.filter(d=>d.resolution==="kept").length, waived: list.filter(d=>d.resolution==="waived").length };
 }
 function entryTotal(e){ return (e.price||0) + (e.tip||0); }
+const PALETTE = ["#D6A756","#5B8DEF","#4FB0A5","#C1392B","#B77FD1","#8B8D93","#7FD17F","#D17FB0"];
+function methodColor(name){
+  let idx = state.settings.paymentMethods.indexOf(name);
+  if(idx === -1){ idx = 0; for(let i=0;i<name.length;i++) idx += name.charCodeAt(i); }
+  return PALETTE[idx % PALETTE.length];
+}
 function sumEntries(list){ return list.reduce((s,e)=> s + entryTotal(e), 0); }
+function sumTips(list){ return list.reduce((s,e)=> s + (e.tip||0), 0); }
+function tipSubline(list){ const t = sumTips(list); return t>0 ? `<div style="color:var(--text-secondary);font-size:10px;margin-top:2px;">${fmtMoney(t)} tip</div>` : ""; }
 
 function entriesInRange(start, end){ // inclusive, dateObj
   const s = toISODate(start), en = toISODate(end);
@@ -323,6 +347,7 @@ function render(){
   else if(state.tab === "customers") el.innerHTML = renderCustomers();
   else if(state.tab === "profile") el.innerHTML = renderProfile();
   else if(state.tab === "deposits") el.innerHTML = renderDeposits();
+  else if(state.tab === "payments") el.innerHTML = renderPayments();
   else if(state.tab === "analytics") el.innerHTML = renderAnalytics();
   else if(state.tab === "settings") el.innerHTML = renderSettings();
   bindScreenEvents();
@@ -343,6 +368,16 @@ function renderToday(){
   const {start, end} = weekRangeFor(viewDate);
   const weekTotal = sumEntries(entriesInRange(start, end));
 
+  // other days this week (before viewDate) that have entries, most recent first
+  const otherDays = [];
+  for(let d = new Date(start); d <= end; d = addDays(d,1)){
+    if(toISODate(d) === toISODate(viewDate)) continue;
+    if(d > viewDate) continue;
+    const ents = entriesOnDay(d);
+    if(ents.length) otherDays.push({date: new Date(d), entries: ents});
+  }
+  otherDays.sort((a,b)=> b.date - a.date);
+
   let backdateBanner = "";
   if(state.pinnedDate){
     const pd = new Date(state.pinnedDate + "T00:00:00");
@@ -350,8 +385,25 @@ function renderToday(){
       <span style="color:var(--text-secondary);font-size:11px;cursor:pointer;" data-action="clear-pin">Reset to today</span></div>`;
   }
 
+  let backupBanner = "";
+  if(state.entries.length > 0){
+    const lb = state.settings.lastBackupAt ? new Date(state.settings.lastBackupAt) : null;
+    const daysSince = lb ? Math.floor((Date.now()-lb.getTime())/86400000) : null;
+    if(daysSince === null || daysSince > 14){
+      backupBanner = `<div class="banner" style="background:color-mix(in srgb, var(--danger) 16%, var(--surface));" data-action="goto-backup">
+        <span class="txt" style="color:var(--danger);">${daysSince===null? "Never backed up" : daysSince + " days since backup"}</span>
+        <span style="color:var(--text-secondary);font-size:11px;">Tap to export</span></div>`;
+    }
+  }
+
   const rows = dayEntries.length ? dayEntries.map(e => entryRow(e)).join("") :
     `<div class="empty"><i class="ti ti-flame"></i>No payments ${isToday? "yet today":"for this day"}. Log your first one.</div>`;
+
+  const otherDaysHtml = otherDays.map(g => {
+    const dow = DAY_NAMES[g.date.getDay()].slice(0,3).toUpperCase();
+    return `<div class="eyebrow">${dow} &middot; ${fmtDateShort(g.date)}</div>
+      <div class="card" style="padding:4px 16px;">${g.entries.map(e=>entryRow(e)).join("")}</div>`;
+  }).join("");
 
   return `
     <div class="header">
@@ -361,29 +413,37 @@ function renderToday(){
     </div>
     <div class="sub-date">${fmtDateFull(viewDate)}</div>
     ${backdateBanner}
-    <div class="stat-grid" style="grid-template-columns:1fr 1fr;margin-bottom:14px;">
-      <div class="stat-box"><div class="lbl">${isToday?"Today":"This day"}</div><div class="val">${fmtMoney(dayTotal)}</div></div>
-      <div class="stat-box"><div class="lbl">This week</div><div class="val">${fmtMoney(weekTotal)}</div></div>
+    ${backupBanner}
+    <div class="stat-grid" style="grid-template-columns:1fr 1fr;margin-bottom:16px;">
+      <div class="stat-box"><div class="lbl">${isToday?"Today":"This day"}</div><div class="val">${fmtMoney(dayTotal)}</div>${tipSubline(dayEntries)}</div>
+      <div class="stat-box"><div class="lbl">This week</div><div class="val">${fmtMoney(weekTotal)}</div>${tipSubline(entriesInRange(start,end))}</div>
     </div>
-    <div class="fab-row">
-      <button class="btn btn-primary" data-action="new-entry"><i class="ti ti-plus"></i>New payment</button>
-    </div>
-    <div class="eyebrow">Recent</div>
+    <div class="eyebrow">${isToday ? "Today" : "This day"}</div>
     <div class="card" style="padding:4px 16px;">${rows}</div>
+    ${otherDaysHtml}
+    <div style="height:90px;"></div>
+    <div class="fixed-cta">
+      <button class="btn btn-primary btn-big" data-action="new-entry"><i class="ti ti-plus"></i>New payment</button>
+    </div>
   `;
 }
 
 function entryRow(e){
   const c = getCustomer(e.customerId);
   const dt = new Date(e.dateTime);
-  const edited = e.editHistory && e.editHistory.length ? `<i class="ti ti-history" style="font-size:13px;color:var(--accent);margin-left:6px;" data-action="edit-history" data-id="${e.id}"></i>` : "";
+  const edited = e.editHistory && e.editHistory.length ? `<i class="ti ti-history" style="font-size:13px;color:var(--accent);margin-left:6px;flex-shrink:0;" data-action="edit-history" data-id="${e.id}"></i>` : `<div style="width:13px;flex-shrink:0;"></div>`;
+  const tipNote = e.tip>0 ? `<div style="color:var(--text-secondary);font-size:10px;margin-top:1px;">${fmtMoney(e.tip)} tip</div>` : "";
   return `<div class="list-row">
-    <div class="avatar">${initials(c ? c.name : "?")}</div>
-    <div style="flex:1;min-width:0;" data-action="open-entry" data-id="${e.id}">
-      <div class="name">${escapeHtml(c ? c.name : "Unknown")}</div>
-      <div class="meta">${fmtTime(dt)}${e.description? " · " + escapeHtml(e.description) : ""}</div>
-    </div>
-    <div class="amount">${fmtMoney(entryTotal(e))}</div>${edited}
+    <div style="flex:1;min-width:0;display:flex;align-items:center;gap:10px;" data-action="open-entry" data-id="${e.id}">
+      <div class="avatar">${initials(c ? c.name : "?")}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="name">${escapeHtml(c ? c.name : "Unknown")}</div>
+        <div class="meta">${fmtTime(dt)}${e.description? " · " + escapeHtml(e.description) : ""}</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="amount">${fmtMoney(entryTotal(e))}</div>${tipNote}
+      </div>
+    </div>${edited}
   </div>`;
 }
 
@@ -437,14 +497,18 @@ function renderProfile(){
   const rows = ents.length ? ents.map(e=>{
     const dt = new Date(e.dateTime);
     const edited = e.editHistory && e.editHistory.length ? `<i class="ti ti-history" style="font-size:13px;color:var(--accent);margin-left:6px;" data-action="edit-history" data-id="${e.id}"></i>` : `<i class="ti ti-history" style="font-size:13px;color:var(--text-muted);margin-left:6px;"></i>`;
+    const tipNote = e.tip>0 ? ` <span style="color:var(--text-secondary);font-weight:500;font-size:11px;">(${fmtMoney(e.tip)} tip)</span>` : "";
     return `<div class="list-row" >
       <div style="flex:1;min-width:0;" data-action="open-entry" data-id="${e.id}">
         <div class="name">${escapeHtml(e.description || "Tattoo session")}</div>
         <div class="meta">${fmtDateShort(dt)} · ${e.paymentMethod}</div>
       </div>
-      <div class="amount">${fmtMoney(entryTotal(e))}</div>${edited}
+      <div class="amount">${fmtMoney(entryTotal(e))}${tipNote}</div>${edited}
     </div>`;
   }).join("") : `<div class="empty" style="padding:20px 0;">No visits logged yet.</div>`;
+
+  const totalTips = ents.reduce((s,e)=> s+(e.tip||0), 0);
+  const avgTip = ents.length ? totalTips/ents.length : 0;
 
   return `
     <div class="header">
@@ -460,10 +524,14 @@ function renderProfile(){
         <div class="meta">Since ${MONTH_ABBR[created.getMonth()]} ${created.getFullYear()}</div>
       </div>
     </div>
-    <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px;">
+    <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:8px;">
       <div class="stat-box" style="text-align:center;"><div class="val" style="font-size:16px;">${ents.length}</div><div class="lbl">Visits</div></div>
       <div class="stat-box" style="text-align:center;"><div class="val" style="font-size:16px;">${fmtMoney(sumEntries(ents))}</div><div class="lbl">Lifetime</div></div>
       <div class="stat-box" style="text-align:center;"><div class="val" style="font-size:16px;color:${ns.count>0?'var(--danger)':'var(--text)'};">${ns.count}</div><div class="lbl">No-shows${ns.waived? " ("+ns.waived+" waived)":""}</div></div>
+    </div>
+    <div class="stat-grid" style="grid-template-columns:repeat(2,1fr);margin-bottom:14px;">
+      <div class="stat-box" style="text-align:center;"><div class="val" style="font-size:16px;">${fmtMoney(totalTips)}</div><div class="lbl">Tip total</div></div>
+      <div class="stat-box" style="text-align:center;"><div class="val" style="font-size:16px;">${fmtMoney(avgTip)}</div><div class="lbl">Avg tip</div></div>
     </div>
     <div class="card row-between">
       <div>
@@ -482,8 +550,9 @@ function renderProfile(){
 
 /* ---------- DEPOSITS screen ---------- */
 function renderDeposits(){
-  const total = totalDepositsHeld();
-  const withBalances = state.customers.map(c => ({c, bal: depositBalance(c.id)})).filter(x=> x.bal > 0 || customerDeposits(x.c.id).length);
+  const q = state.depositSearch.trim().toLowerCase();
+  let withBalances = state.customers.map(c => ({c, bal: depositBalance(c.id)})).filter(x=> x.bal > 0 || customerDeposits(x.c.id).length);
+  if(q) withBalances = withBalances.filter(x => x.c.name.toLowerCase().includes(q));
   withBalances.sort((a,b)=> customerDeposits(b.c.id)[0]?.dateTime.localeCompare(customerDeposits(a.c.id)[0]?.dateTime||"") || 0);
 
   const rows = withBalances.length ? withBalances.map(({c, bal})=>{
@@ -517,14 +586,96 @@ function renderDeposits(){
   return `
     <div class="header"><div></div><div class="header-title">Deposits</div><div></div></div>
     <div style="height:14px;"></div>
-    <div class="eyebrow">Held across all customers</div>
-    <div style="font-size:26px;font-weight:800;margin-bottom:14px;">${fmtMoney(total)}</div>
-    <div class="fab-row">
-      <button class="btn btn-primary" data-action="new-deposit"><i class="ti ti-plus"></i>New deposit</button>
+    <div class="search-box">
+      <i class="ti ti-search" style="color:var(--text-secondary);font-size:15px;"></i>
+      <input id="deposit-search" placeholder="Search customers" value="${escapeHtml(state.depositSearch)}">
+    </div>
+    <div class="card" style="padding:4px 16px;">${rows}</div>
+    <div style="height:90px;"></div>
+    <div class="fixed-cta">
+      <button class="btn btn-primary btn-big" data-action="new-deposit"><i class="ti ti-plus"></i>New deposit</button>
+    </div>
+  `;
+}
+
+/* ---------- PAYMENTS screen (calendar + running list) ---------- */
+function renderPayments(){
+  const month = state.paymentsMonth;
+  const y = month.getFullYear(), m = month.getMonth();
+  const monthLabel = `${MONTH_ABBR[m]} ${y}`;
+  const monthEntries = state.entries.filter(e => { const d=e.dateTime.slice(0,7); return d === `${y}-${String(m+1).padStart(2,"0")}`; });
+  const monthTotal = sumEntries(monthEntries);
+
+  // group month entries by day -> distinct payment methods used that day
+  const dayMethods = {}; // iso -> Set of method names
+  monthEntries.forEach(e=>{
+    const iso = e.dateTime.slice(0,10);
+    if(!dayMethods[iso]) dayMethods[iso] = new Set();
+    dayMethods[iso].add(e.paymentMethod);
+  });
+
+  const startDow = 0; // calendar is always Sun-Sat, independent of the work-week setting
+  const firstOfMonth = new Date(y, m, 1);
+  const firstDow = firstOfMonth.getDay();
+  let leadBlank = firstDow - startDow; if(leadBlank < 0) leadBlank += 7;
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const todayIso = toISODate(todayDateObj());
+
+  const dowLabels = ["S","M","T","W","T","F","S"];
+
+  let cells = "";
+  for(let i=0;i<leadBlank;i++) cells += `<div></div>`;
+  for(let d=1; d<=daysInMonth; d++){
+    const iso = `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const methods = dayMethods[iso];
+    const isSelected = state.paymentsSelectedDate === iso;
+    const isToday = iso === todayIso;
+    const dots = methods ? `<div class="cal-dots">${[...methods].slice(0,4).map(name=>`<div class="cal-dot" style="background:${methodColor(name)};"></div>`).join("")}</div>` : `<div class="cal-dots"></div>`;
+    cells += `<div class="cal-day ${isSelected?'selected':''} ${isToday && !isSelected?'is-today':''}" data-action="pick-day" data-date="${iso}">
+      <span>${d}</span>${dots}
+    </div>`;
+  }
+
+  let listTitle, listEntries;
+  if(state.paymentsSelectedDate){
+    const sd = new Date(state.paymentsSelectedDate + "T00:00:00");
+    listTitle = fmtDateFull(sd);
+    listEntries = state.entries.filter(e => e.dateTime.slice(0,10) === state.paymentsSelectedDate);
+  } else {
+    listTitle = "All payments";
+    listEntries = [...state.entries];
+  }
+  listEntries.sort((a,b)=> b.dateTime.localeCompare(a.dateTime));
+
+  const rows = listEntries.length ? listEntries.map(e => entryRow(e)).join("") :
+    `<div class="empty" style="padding:20px 0;">No payments here.</div>`;
+
+  const legend = state.settings.paymentMethods.map(name => `<div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-secondary);"><div class="cal-dot" style="background:${methodColor(name)};"></div>${escapeHtml(name)}</div>`).join("");
+
+  return `
+    <div class="header"><div></div><div class="header-title">Payments</div><div></div></div>
+    <div style="height:14px;"></div>
+
+    <div class="card">
+      <div class="header" style="grid-template-columns:24px 1fr 24px;margin-bottom:2px;">
+        <i class="ti ti-chevron-left header-icon" data-action="payments-month-back"></i>
+        <div style="text-align:center;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">${monthLabel}</div>
+        <i class="ti ti-chevron-right header-icon right" data-action="payments-month-fwd"></i>
+      </div>
+      <div style="text-align:center;color:var(--text-secondary);font-size:11px;margin-bottom:10px;">${fmtMoney(monthTotal)} this month${sumTips(monthEntries)>0 ? ` (${fmtMoney(sumTips(monthEntries))} tip)` : ""}</div>
+      <div class="cal-grid cal-dow">${dowLabels.map(l=>`<div>${l}</div>`).join("")}</div>
+      <div class="cal-grid">${cells}</div>
+      <div class="row" style="gap:12px;flex-wrap:wrap;justify-content:center;margin-top:12px;padding-top:10px;border-top:1px solid var(--border);">${legend}</div>
+    </div>
+
+    <div class="row-between" style="margin-bottom:6px;">
+      <div class="eyebrow" style="margin:0;">${listTitle}</div>
+      ${state.paymentsSelectedDate ? `<span style="color:var(--accent);font-size:11px;cursor:pointer;" data-action="clear-day-filter">Show all</span>` : ""}
     </div>
     <div class="card" style="padding:4px 16px;">${rows}</div>
   `;
 }
+
 
 /* ---------- ANALYTICS screen ---------- */
 function renderAnalytics(){
@@ -562,17 +713,16 @@ function renderAnalytics(){
   state.entries.forEach(e => { methodTotals[e.paymentMethod] = (methodTotals[e.paymentMethod]||0) + entryTotal(e); });
   const methodEntries = Object.entries(methodTotals).sort((a,b)=>b[1]-a[1]);
   const methodTotalSum = methodEntries.reduce((s,[,v])=>s+v,0) || 1;
-  const palette = ["#D6A756","#5B8DEF","#4FB0A5","#C1392B","#B77FD1","#8B8D93"];
   let cumOffset = 0;
   const circleR = 15.5, circumference = 2*Math.PI*circleR;
   const donutSegs = methodEntries.map(([name,val],i)=>{
     const frac = val/methodTotalSum;
     const dash = frac*circumference;
-    const seg = `<circle cx="18" cy="18" r="${circleR}" fill="none" stroke="${palette[i%palette.length]}" stroke-width="5" stroke-dasharray="${dash} ${circumference}" stroke-dashoffset="${-cumOffset}" transform="rotate(-90 18 18)"/>`;
+    const seg = `<circle cx="18" cy="18" r="${circleR}" fill="none" stroke="${methodColor(name)}" stroke-width="5" stroke-dasharray="${dash} ${circumference}" stroke-dashoffset="${-cumOffset}" transform="rotate(-90 18 18)"/>`;
     cumOffset += dash;
     return seg;
   }).join("");
-  const legend = methodEntries.map(([name,val],i)=> `<div style="font-size:11px;color:${palette[i%palette.length]};">&#9679; ${escapeHtml(name)} ${Math.round(val/methodTotalSum*100)}%</div>`).join("");
+  const legend = methodEntries.map(([name,val])=> `<div style="font-size:11px;color:${methodColor(name)};">&#9679; ${escapeHtml(name)} ${Math.round(val/methodTotalSum*100)}%</div>`).join("");
 
   // top customers
   const byCustomer = {};
@@ -588,12 +738,12 @@ function renderAnalytics(){
     <div class="header"><div></div><div class="header-title">Stats</div><div></div></div>
     <div style="height:14px;"></div>
     <div class="stat-grid" style="grid-template-columns:1fr 1fr;margin-bottom:8px;">
-      <div class="stat-box"><div class="lbl">Today</div><div class="val">${fmtMoney(sumEntries(todayEntries))}</div></div>
-      <div class="stat-box"><div class="lbl">This week</div><div class="val">${fmtMoney(sumEntries(weekEntries))}</div></div>
+      <div class="stat-box"><div class="lbl">Today</div><div class="val">${fmtMoney(sumEntries(todayEntries))}</div>${tipSubline(todayEntries)}</div>
+      <div class="stat-box"><div class="lbl">This week</div><div class="val">${fmtMoney(sumEntries(weekEntries))}</div>${tipSubline(weekEntries)}</div>
     </div>
     <div class="stat-grid" style="grid-template-columns:1fr 1fr;margin-bottom:14px;">
-      <div class="stat-box"><div class="lbl">This month</div><div class="val">${fmtMoney(sumEntries(monthEntries))}</div></div>
-      <div class="stat-box"><div class="lbl">All time</div><div class="val">${fmtMoney(allTimeTotal)}</div></div>
+      <div class="stat-box"><div class="lbl">This month</div><div class="val">${fmtMoney(sumEntries(monthEntries))}</div>${tipSubline(monthEntries)}</div>
+      <div class="stat-box"><div class="lbl">All time</div><div class="val">${fmtMoney(allTimeTotal)}</div>${tipSubline(state.entries)}</div>
     </div>
 
     <div class="card">
@@ -603,7 +753,8 @@ function renderAnalytics(){
           ${yearOptions.map(y=> `<option value="${y}" ${y===year?"selected":""}>${y}</option>`).join("")}
         </select>
       </div>
-      <div style="font-size:22px;font-weight:800;margin-bottom:10px;">${fmtMoney(yearTotal)}</div>
+      <div style="font-size:22px;font-weight:800;margin-bottom:2px;">${fmtMoney(yearTotal)}</div>
+      ${sumTips(yearEntries)>0 ? `<div style="color:var(--text-secondary);font-size:11px;margin-bottom:8px;">${fmtMoney(sumTips(yearEntries))} tip</div>` : `<div style="margin-bottom:8px;"></div>`}
       <div style="display:flex;gap:4px;align-items:flex-end;">${bars}</div>
     </div>
 
@@ -686,8 +837,8 @@ function renderSettings(){
       <div style="font-size:12px;margin-bottom:2px;">${lastBackup ? "Last backup: " + timeAgo(lastBackup) : "No backup yet"}</div>
       ${backupWarn ? `<div style="color:#E2A23B;font-size:11px;margin-bottom:10px;">Export a backup soon</div>` : `<div style="height:10px;"></div>`}
       <div class="row" style="gap:8px;">
-        <button class="btn btn-secondary" data-action="export-json"><i class="ti ti-download"></i>Export JSON</button>
-        <button class="btn btn-secondary" data-action="export-csv"><i class="ti ti-file-spreadsheet"></i>CSV</button>
+        <button class="btn btn-secondary" data-action="export-json"><i class="ti ti-download"></i>Export Backup</button>
+        <button class="btn btn-secondary" data-action="export-csv"><i class="ti ti-file-spreadsheet"></i>Export CSV</button>
       </div>
       <div style="height:8px;"></div>
       <button class="btn btn-ghost" data-action="import-json"><i class="ti ti-upload"></i>Import backup</button>
@@ -1196,11 +1347,11 @@ function downloadBlob(content, filename, mime){
   setTimeout(()=> URL.revokeObjectURL(url), 2000);
 }
 
-function exportJSON(){
+function exportJSON(message){
   const payload = { version:1, exportedAt: new Date().toISOString(), customers: state.customers, entries: state.entries, deposits: state.deposits, settings: state.settings };
   downloadBlob(JSON.stringify(payload, null, 2), `ledg-backup-${toISODate(new Date())}.json`, "application/json");
   state.settings.lastBackupAt = Date.now();
-  saveSettings(); render(); toast("Backup exported");
+  saveSettings(); render(); toast(message || "Backup exported");
 }
 
 function exportCSV(){
@@ -1294,6 +1445,9 @@ function bindScreenEvents(){
   const searchInput = document.getElementById("customer-search");
   if(searchInput) searchInput.addEventListener("input", (e)=>{ state.customerSearch = e.target.value; render(); preserveFocus("customer-search"); });
 
+  const depSearchInput = document.getElementById("deposit-search");
+  if(depSearchInput) depSearchInput.addEventListener("input", (e)=>{ state.depositSearch = e.target.value; render(); preserveFocus("deposit-search"); });
+
   const yearSelect = document.getElementById("year-select");
   if(yearSelect) yearSelect.addEventListener("change", (e)=>{ state.analyticsYear = parseInt(e.target.value,10); render(); });
 
@@ -1313,6 +1467,15 @@ function bindScreenEvents(){
     if(t("[data-action='day-back']")){ state.todayOffset++; return render(); }
     if(t("[data-action='day-fwd']")){ if(state.todayOffset>0){ state.todayOffset--; render(); } return; }
     if(t("[data-action='clear-pin']")){ state.pinnedDate=null; return render(); }
+    if(t("[data-action='goto-backup']")){ state.tab = "settings"; return render(); }
+    if(t("[data-action='payments-month-back']")){ state.paymentsMonth = new Date(state.paymentsMonth.getFullYear(), state.paymentsMonth.getMonth()-1, 1); return render(); }
+    if(t("[data-action='payments-month-fwd']")){ state.paymentsMonth = new Date(state.paymentsMonth.getFullYear(), state.paymentsMonth.getMonth()+1, 1); return render(); }
+    if(t("[data-action='pick-day']")){
+      const date = t("[data-action='pick-day']").dataset.date;
+      state.paymentsSelectedDate = (state.paymentsSelectedDate === date) ? null : date;
+      return render();
+    }
+    if(t("[data-action='clear-day-filter']")){ state.paymentsSelectedDate = null; return render(); }
     if(t("[data-action='open-profile']")){ state.profileCustomerId = t("[data-action='open-profile']").dataset.id; state.tab="profile"; return render(); }
     if(t("[data-action='back-to-customers']")){ state.tab="customers"; return render(); }
     if(t("[data-action='delete-customer']")){
@@ -1359,6 +1522,24 @@ document.querySelectorAll(".nav-btn").forEach(btn=>{
     render();
   });
 });
+
+/* ---------- Automatic periodic backup ---------- */
+let autoBackupChecked = false;
+function maybeAutoBackup(){
+  if(autoBackupChecked) return;
+  autoBackupChecked = true;
+  if(!state.settings || !state.entries.length) return;
+  const lb = state.settings.lastBackupAt;
+  const days = lb ? Math.floor((Date.now()-lb)/86400000) : Infinity;
+  if(days >= 14){
+    try{ exportJSON("Backed up automatically"); }catch(e){}
+  }
+}
+document.addEventListener("click", maybeAutoBackup, {once:true});
+
+if(navigator.storage && navigator.storage.persist){
+  navigator.storage.persist().catch(()=>{});
+}
 
 loadAll().then(render).catch(err=>{
   document.getElementById("screen").innerHTML = `<div class="empty"><i class="ti ti-alert-triangle"></i>Couldn't open the local database.<br>${escapeHtml(err.message||String(err))}</div>`;
