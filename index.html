@@ -28,7 +28,7 @@
 
   *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
   html,body{ margin:0; padding:0; background:var(--bg); color:var(--text); font-family:var(--font-app); overscroll-behavior:none; }
-  body{ padding-bottom:78px; min-height:100vh; min-height:100dvh; }
+  body{ padding-bottom:calc(70px + env(safe-area-inset-bottom)); min-height:100vh; min-height:100dvh; }
   button, input, select, textarea{ font-family:inherit; }
   input, select, textarea{
     width:100%; background:var(--surface2); border:1px solid var(--border); color:var(--text);
@@ -93,7 +93,7 @@
   .bottom-nav.style-icons .nav-label{ display:none; }
   .bottom-nav.style-text .nav-btn i{ display:none; }
   .fab-row{ margin-bottom:14px; }
-  .fixed-cta{ position:fixed; left:0; right:0; bottom:78px; z-index:15; padding:10px 16px 14px; max-width:480px; margin:0 auto; background:linear-gradient(to top, var(--bg) 55%, transparent); }
+  .fixed-cta{ position:fixed; left:0; right:0; bottom:calc(70px + env(safe-area-inset-bottom)); z-index:15; padding:10px 16px 14px; max-width:480px; margin:0 auto; background:linear-gradient(to top, var(--bg) 55%, transparent); }
   .btn-big{ padding:30px 18px; font-size:22px; font-weight:800; border-radius:16px; letter-spacing:0.3px; }
   .search-box{ display:flex; align-items:center; gap:8px; background:var(--surface2); border-radius:10px; padding:9px 12px; margin-bottom:14px; }
   .search-box input{ background:none; border:none; padding:0; }
@@ -286,6 +286,14 @@ async function loadAll(){
   state.customers = await idbGetAll("customers");
   state.entries = await idbGetAll("entries");
   state.deposits = await idbGetAll("deposits");
+  const needsBackfill = state.deposits.filter(d => !d.createdAt);
+  if(needsBackfill.length){
+    for(const d of needsBackfill){
+      const parsed = new Date(d.dateTime).getTime();
+      d.createdAt = isNaN(parsed) ? Date.now() : parsed;
+      await idbPut("deposits", d);
+    }
+  }
   state.analyticsYear = new Date().getFullYear();
   state.paymentsMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
   applyTheme();
@@ -610,12 +618,12 @@ function renderPayments(){
   const monthEntries = state.entries.filter(e => { const d=e.dateTime.slice(0,7); return d === `${y}-${String(m+1).padStart(2,"0")}`; });
   const monthTotal = sumEntries(monthEntries);
 
-  // group month entries by day -> distinct payment methods used that day
-  const dayMethods = {}; // iso -> Set of method names
+  // group month entries by day -> list of payment methods, one per payment
+  const dayPayments = {}; // iso -> array of method names, one entry per payment
   monthEntries.forEach(e=>{
     const iso = e.dateTime.slice(0,10);
-    if(!dayMethods[iso]) dayMethods[iso] = new Set();
-    dayMethods[iso].add(e.paymentMethod);
+    if(!dayPayments[iso]) dayPayments[iso] = [];
+    dayPayments[iso].push(e.paymentMethod);
   });
 
   const startDow = 0; // calendar is always Sun-Sat, independent of the work-week setting
@@ -626,15 +634,21 @@ function renderPayments(){
   const todayIso = toISODate(todayDateObj());
 
   const dowLabels = ["S","M","T","W","T","F","S"];
+  const DOT_CAP = 6;
 
   let cells = "";
   for(let i=0;i<leadBlank;i++) cells += `<div></div>`;
   for(let d=1; d<=daysInMonth; d++){
     const iso = `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-    const methods = dayMethods[iso];
+    const payments = dayPayments[iso];
     const isSelected = state.paymentsSelectedDate === iso;
     const isToday = iso === todayIso;
-    const dots = methods ? `<div class="cal-dots">${[...methods].slice(0,4).map(name=>`<div class="cal-dot" style="background:${methodColor(name)};"></div>`).join("")}</div>` : `<div class="cal-dots"></div>`;
+    let dots = `<div class="cal-dots"></div>`;
+    if(payments){
+      const shown = payments.slice(0, DOT_CAP).map(name=>`<div class="cal-dot" style="background:${methodColor(name)};"></div>`).join("");
+      const overflow = payments.length > DOT_CAP ? `<div style="font-size:6.5px;color:inherit;opacity:0.7;line-height:1;">+${payments.length-DOT_CAP}</div>` : "";
+      dots = `<div class="cal-dots">${shown}</div>${overflow}`;
+    }
     cells += `<div class="cal-day ${isSelected?'selected':''} ${isToday && !isSelected?'is-today':''}" data-action="pick-day" data-date="${iso}">
       <span>${d}</span>${dots}
     </div>`;
@@ -703,14 +717,33 @@ function renderAnalytics(){
 
   // monthly breakdown for selected year
   const monthTotals = new Array(12).fill(0);
-  yearEntries.forEach(e=>{ const m = parseInt(e.dateTime.slice(5,7),10)-1; monthTotals[m] += entryTotal(e); });
+  const monthMethodTotals = Array.from({length:12}, ()=>({}));
+  yearEntries.forEach(e=>{
+    const mi = parseInt(e.dateTime.slice(5,7),10)-1;
+    const val = entryTotal(e);
+    monthTotals[mi] += val;
+    monthMethodTotals[mi][e.paymentMethod] = (monthMethodTotals[mi][e.paymentMethod]||0) + val;
+  });
   const maxMonth = Math.max(1, ...monthTotals);
-  const bars = monthTotals.map((v,i)=> `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
-      <div style="width:100%;background:var(--surface3);border-radius:3px;height:60px;display:flex;align-items:flex-end;">
-        <div style="width:100%;background:var(--accent);border-radius:3px;height:${Math.max(2,(v/maxMonth)*60)}px;"></div>
+  const bars = monthTotals.map((v,i)=>{
+    const barH = Math.max(2, (v/maxMonth)*60);
+    let segsHtml;
+    if(v > 0){
+      const sortedMethods = Object.keys(monthMethodTotals[i]).sort((a,b)=> state.settings.paymentMethods.indexOf(a) - state.settings.paymentMethods.indexOf(b));
+      segsHtml = sortedMethods.map(name=>{
+        const val = monthMethodTotals[i][name];
+        return `<div style="width:100%;background:${methodColor(name)};height:${(val/v)*barH}px;"></div>`;
+      }).join("");
+    } else {
+      segsHtml = `<div style="width:100%;background:var(--surface3);height:${barH}px;"></div>`;
+    }
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+      <div style="width:100%;background:var(--surface3);border-radius:3px;height:60px;display:flex;align-items:flex-end;overflow:hidden;">
+        <div style="width:100%;display:flex;flex-direction:column-reverse;border-radius:3px;overflow:hidden;">${segsHtml}</div>
       </div>
       <div style="font-size:8px;color:var(--text-muted);">${MONTH_ABBR[i][0]}</div>
-    </div>`).join("");
+    </div>`;
+  }).join("");
 
   // payment method breakdown (all-time)
   const methodTotals = {};
