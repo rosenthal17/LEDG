@@ -211,6 +211,10 @@ function idbDelete(storeName, id){
 }
 
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,9); }
+function nowLocalDateTime(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}T${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}:${String(d.getSeconds()).padStart(2,"0")}`;
+}
 
 /* ---------- Default settings ---------- */
 const DEFAULT_SETTINGS = {
@@ -298,7 +302,7 @@ async function saveSettings(){ await idbPut("meta", state.settings); applyTheme(
 /* ---------- Derived data helpers ---------- */
 function getCustomer(id){ return state.customers.find(c => c.id === id); }
 function customerEntries(id){ return state.entries.filter(e => e.customerId === id).sort((a,b)=> b.dateTime.localeCompare(a.dateTime)); }
-function customerDeposits(id){ return state.deposits.filter(d => d.customerId === id).sort((a,b)=> b.dateTime.localeCompare(a.dateTime)); }
+function customerDeposits(id){ return state.deposits.filter(d => d.customerId === id).sort((a,b)=> (b.createdAt||0) - (a.createdAt||0)); }
 
 function depositBalance(customerId){
   let bal = 0;
@@ -1002,6 +1006,20 @@ function refreshDepositBlock(overlay){
   const block = overlay.querySelector("#deposit-block");
   const form = overlay._form;
   const bal = form.customerId ? depositBalance(form.customerId) : 0;
+
+  // Editing an existing entry that used a deposit: always show that fact,
+  // regardless of the customer's current remaining balance (which may since be $0).
+  if(form.id && form.depositAmount > 0){
+    block.innerHTML = `
+      <div class="field">
+        <div class="row" style="gap:8px;">
+          <i class="ti ti-wallet" style="font-size:15px;color:var(--accent);flex-shrink:0;"></i>
+          <span style="font-size:12px;color:var(--text);">${fmtMoney(form.depositAmount)} from deposit was used on this session</span>
+        </div>
+      </div>`;
+    return;
+  }
+
   if(!form.customerId || bal<=0){ block.innerHTML = ""; form.depositApplied = false; return; }
   block.innerHTML = `
     <div class="field">
@@ -1128,7 +1146,7 @@ function doSaveEntry(overlay, editing, addAnother){
       idbPut("entries", entry).then(()=>{
         state.entries.push(entry);
         if(depositApplied && depositAmount>0){
-          const ledger = { id: uid(), customerId, type:"applied", amount: depositAmount, dateTime, note:"Applied to session", appliedToEntryId: entry.id };
+          const ledger = { id: uid(), customerId, type:"applied", amount: depositAmount, dateTime, createdAt: Date.now(), note:"Applied to session", appliedToEntryId: entry.id };
           idbPut("deposits", ledger).then(()=>{ state.deposits.push(ledger); finishSave(); });
         } else finishSave();
       });
@@ -1235,7 +1253,7 @@ function openNewDeposit(){
       if(!name){ err.textContent = "Enter a customer name."; err.style.display="block"; return; }
       if(isNaN(amt) || amt<=0){ err.textContent = "Enter a valid amount."; err.style.display="block"; return; }
       const proceed = (customerId) => {
-        const ledger = { id: uid(), customerId, type:"taken", amount: amt, dateTime: new Date().toISOString(), note };
+        const ledger = { id: uid(), customerId, type:"taken", amount: amt, dateTime: nowLocalDateTime(), createdAt: Date.now(), note };
         idbPut("deposits", ledger).then(()=>{ state.deposits.push(ledger); closeModal(); render(); toast("Deposit recorded"); });
       };
       if(pickedId){ proceed(pickedId); return; }
@@ -1262,7 +1280,7 @@ function openTakeDeposit(customerId){
       const note = document.getElementById("dep-note").value.trim();
       const err = document.getElementById("dep-error");
       if(isNaN(amt) || amt<=0){ err.textContent = "Enter a valid amount."; err.style.display="block"; return; }
-      const ledger = { id: uid(), customerId, type:"taken", amount: amt, dateTime: new Date().toISOString(), note };
+      const ledger = { id: uid(), customerId, type:"taken", amount: amt, dateTime: nowLocalDateTime(), createdAt: Date.now(), note };
       idbPut("deposits", ledger).then(()=>{ state.deposits.push(ledger); closeModal(); render(); toast("Deposit recorded"); });
     }
   });
@@ -1296,7 +1314,7 @@ function openRefundForm(customerId, bal){
       const note = document.getElementById("dep-note").value.trim();
       const err = document.getElementById("dep-error");
       if(isNaN(amt) || amt<=0 || amt>bal){ err.textContent = "Enter an amount up to " + fmtMoney(bal) + "."; err.style.display="block"; return; }
-      const ledger = { id: uid(), customerId, type:"refunded", amount: amt, dateTime: new Date().toISOString(), note };
+      const ledger = { id: uid(), customerId, type:"refunded", amount: amt, dateTime: nowLocalDateTime(), createdAt: Date.now(), note };
       idbPut("deposits", ledger).then(()=>{ state.deposits.push(ledger); closeModal(); render(); toast("Refund recorded"); });
     }
   });
@@ -1331,7 +1349,7 @@ function openNoShowForm(customerId, bal){
         const err = document.getElementById("dep-error");
         if(isNaN(amt) || amt<=0 || amt>bal){ err.textContent = "Enter an amount up to " + fmtMoney(bal) + "."; err.style.display="block"; return; }
       }
-      const ledger = { id: uid(), customerId, type:"no_show", resolution, amount: amt, dateTime: new Date().toISOString(), note };
+      const ledger = { id: uid(), customerId, type:"no_show", resolution, amount: amt, dateTime: nowLocalDateTime(), createdAt: Date.now(), note };
       idbPut("deposits", ledger).then(()=>{ state.deposits.push(ledger); closeModal(); render(); toast("Logged"); });
     }
   });
