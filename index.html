@@ -43,7 +43,7 @@
   .row{ display:flex; align-items:center; }
   .row-between{ display:flex; align-items:center; justify-content:space-between; }
   .divider{ border-top:1px solid var(--border); }
-  #app-title{ text-align:center; padding:14px 0 0; font-size:15px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--text); }
+  #app-title{ text-align:center; padding:calc(14px + env(safe-area-inset-top)) 0 0; font-size:15px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--text); }
   .screen{ max-width:480px; margin:0 auto; padding:16px 16px 8px; }
   .header{ display:grid; grid-template-columns:28px 1fr 28px; align-items:center; margin-bottom:4px; min-height:28px; }
   .header-title{ text-align:center; font-size:15px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; }
@@ -1043,6 +1043,10 @@ function openEntryForm(existingId){
     <button class="btn btn-primary" data-action="save-entry" style="margin-bottom:10px;">Save payment</button>
     ${editing ? `<button class="btn btn-danger" data-action="delete-entry" data-id="${editing.id}">Delete payment</button>` :
       `<div id="save-another-wrap"></div>`}
+    ${editing && editing.editHistory && editing.editHistory.length ? `
+      <div class="eyebrow" style="margin-top:20px;">Edit history</div>
+      ${editHistoryItemsHtml(editing)}
+    ` : ""}
   </div>`;
 
   const overlay = openModal(html);
@@ -1242,17 +1246,20 @@ function doSaveEntry(overlay, editing, addAnother){
 function showFormError(box, msg){ box.textContent = msg; box.style.display = "block"; }
 
 /* ---------- Edit history modal ---------- */
-function openEditHistory(entryId){
-  const e = state.entries.find(x=>x.id===entryId);
-  if(!e || !e.editHistory || !e.editHistory.length){ return; }
-  const items = [...e.editHistory].reverse().map(h=>{
+function editHistoryItemsHtml(entry){
+  return [...entry.editHistory].reverse().map(h=>{
     const dt = new Date(h.timestamp);
     const changes = h.changes.map(c=> `<div style="font-size:12px;margin-top:2px;"><span style="color:var(--text-secondary);">${c.field}:</span> ${escapeHtml(String(c.from||"—"))} &rarr; ${escapeHtml(String(c.to||"—"))}</div>`).join("");
     return `<div class="card" style="margin-bottom:8px;"><div class="meta" style="margin-bottom:4px;">${fmtDateShort(dt)} · ${fmtTime(dt)}</div>${changes}</div>`;
   }).join("");
+}
+
+function openEditHistory(entryId){
+  const e = state.entries.find(x=>x.id===entryId);
+  if(!e || !e.editHistory || !e.editHistory.length){ return; }
   openModal(`<div class="dialog">
     <div class="header" style="margin-bottom:10px;"><div></div><div class="header-title">Edit history</div><i class="ti ti-x header-icon right" data-action="close-modal"></i></div>
-    <div style="max-height:60vh;overflow-y:auto;">${items}</div>
+    <div style="max-height:60vh;overflow-y:auto;">${editHistoryItemsHtml(e)}</div>
   </div>`, {center:true});
   document.querySelector(".modal-overlay").addEventListener("click", (e)=>{ if(e.target.closest("[data-action='close-modal']")) closeModal(); });
 }
@@ -1548,7 +1555,16 @@ function bindScreenEvents(){
   if(importFile) importFile.addEventListener("change", (e)=>{ if(e.target.files[0]) importJSON(e.target.files[0]); });
 
   const customAccent = document.getElementById("custom-accent");
-  if(customAccent) customAccent.addEventListener("input", (e)=>{ state.settings.accentColor = e.target.value; saveSettings().then(render); });
+  if(customAccent){
+    customAccent.addEventListener("input", (e)=>{
+      document.documentElement.style.setProperty("--accent", e.target.value);
+      document.documentElement.style.setProperty("--accent-text", accentTextFor(e.target.value));
+    });
+    customAccent.addEventListener("change", (e)=>{
+      state.settings.accentColor = e.target.value;
+      saveSettings().then(render);
+    });
+  }
 
   el.onclick = (e)=>{
     const t = (sel)=> e.target.closest(sel);
