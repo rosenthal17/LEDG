@@ -388,16 +388,6 @@ function renderToday(){
   const {start, end} = weekRangeFor(viewDate);
   const weekTotal = sumEntries(entriesInRange(start, end));
 
-  // other days this week (before viewDate) that have entries, most recent first
-  const otherDays = [];
-  for(let d = new Date(start); d <= end; d = addDays(d,1)){
-    if(toISODate(d) === toISODate(viewDate)) continue;
-    if(d > viewDate) continue;
-    const ents = entriesOnDay(d);
-    if(ents.length) otherDays.push({date: new Date(d), entries: ents});
-  }
-  otherDays.sort((a,b)=> b.date - a.date);
-
   let backdateBanner = "";
   if(state.pinnedDate){
     const pd = new Date(state.pinnedDate + "T00:00:00");
@@ -419,12 +409,6 @@ function renderToday(){
   const rows = dayEntries.length ? dayEntries.map(e => entryRow(e)).join("") :
     `<div class="empty"><i class="ti ti-flame"></i>No payments ${isToday? "yet today":"for this day"}. Log your first one.</div>`;
 
-  const otherDaysHtml = otherDays.map(g => {
-    const dow = DAY_NAMES[g.date.getDay()].slice(0,3).toUpperCase();
-    return `<div class="eyebrow">${dow} &middot; ${fmtDateShort(g.date)}</div>
-      <div class="card" style="padding:4px 16px;">${g.entries.map(e=>entryRow(e)).join("")}</div>`;
-  }).join("");
-
   return `
     <div class="header">
       <i class="ti ti-chevron-left header-icon" data-action="day-back"></i>
@@ -440,7 +424,6 @@ function renderToday(){
     </div>
     <div class="eyebrow">${isToday ? "Today" : "This day"}</div>
     <div class="card" style="padding:4px 16px;">${rows}</div>
-    ${otherDaysHtml}
     <div style="height:90px;"></div>
     <div class="fixed-cta">
       <button class="btn btn-primary btn-big" data-action="new-entry"><i class="ti ti-plus"></i>New payment</button>
@@ -675,24 +658,24 @@ function renderPayments(){
   }
   listEntries.sort((a,b)=> b.dateTime.localeCompare(a.dateTime));
 
-  let rows;
+  let listBlocksHtml;
   if(!listEntries.length){
-    rows = `<div class="empty" style="padding:20px 0;">No payments here.</div>`;
+    listBlocksHtml = `<div class="card" style="padding:4px 16px;"><div class="empty" style="padding:20px 0;">No payments here.</div></div>`;
   } else if(state.paymentsSelectedDate){
-    rows = listEntries.map(e => entryRow(e)).join("");
+    listBlocksHtml = `<div class="card" style="padding:4px 16px;">${listEntries.map(e=>entryRow(e)).join("")}</div>`;
   } else {
-    // group by date with separators when showing the full running list
-    let lastDate = null;
-    rows = listEntries.map(e => {
+    const groups = [];
+    let currentIso = null, currentList = null;
+    listEntries.forEach(e=>{
       const iso = e.dateTime.slice(0,10);
-      let sep = "";
-      if(iso !== lastDate){
-        lastDate = iso;
-        const d = new Date(iso + "T00:00:00");
-        const dow = DAY_NAMES[d.getDay()].slice(0,3).toUpperCase();
-        sep = `<div style="padding:${e===listEntries[0]?'2px':'12px'} 0 6px;color:var(--text-secondary);font-size:10px;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">${dow} &middot; ${fmtDateShort(d)}</div>`;
-      }
-      return sep + entryRow(e);
+      if(iso !== currentIso){ currentIso = iso; currentList = []; groups.push({iso, entries: currentList}); }
+      currentList.push(e);
+    });
+    listBlocksHtml = groups.map((g,i)=>{
+      const d = new Date(g.iso + "T00:00:00");
+      const dow = DAY_NAMES[d.getDay()].slice(0,3).toUpperCase();
+      return `<div class="eyebrow" style="${i>0?'margin-top:16px;':''}">${dow} &middot; ${fmtDateShort(d)}</div>
+        <div class="card" style="padding:4px 16px;">${g.entries.map(e=>entryRow(e)).join("")}</div>`;
     }).join("");
   }
 
@@ -718,7 +701,7 @@ function renderPayments(){
       <div class="eyebrow" style="margin:0;">${listTitle}</div>
       ${state.paymentsSelectedDate ? `<span style="color:var(--accent);font-size:11px;cursor:pointer;" data-action="clear-day-filter">Show all</span>` : ""}
     </div>
-    <div class="card" style="padding:4px 16px;max-height:360px;overflow-y:auto;">${rows}</div>
+    <div style="max-height:420px;overflow-y:auto;">${listBlocksHtml}</div>
   `;
 }
 
