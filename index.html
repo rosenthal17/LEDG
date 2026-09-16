@@ -215,16 +215,18 @@ function nowLocalDateTime(){
 }
 
 /* ---------- Default settings ---------- */
-const DEFAULT_SETTINGS = {
-  id: "settings",
-  weekStartDay: 2, // Tuesday
-  weekEndDay: 6,   // Saturday
-  paymentMethods: ["Cash","Card","Venmo","Other"],
-  accentColor: "#D6A756",
-  font: "system",
-  navStyle: "both",
-  lastBackupAt: null
-};
+function getDefaultSettings(){
+  return {
+    id: "settings",
+    weekStartDay: 2, // Tuesday
+    weekEndDay: 6,   // Saturday
+    paymentMethods: ["Cash","Card","Venmo","Other"],
+    accentColor: "#D6A756",
+    font: "system",
+    navStyle: "both",
+    lastBackupAt: null
+  };
+}
 
 /* ---------- App state ---------- */
 const state = {
@@ -279,8 +281,21 @@ function weekRangeFor(dateObj){
 /* ---------- Load / bootstrap ---------- */
 async function loadAll(){
   let settings = await idbGet("meta", "settings");
-  if(!settings){ settings = {...DEFAULT_SETTINGS}; await idbPut("meta", settings); }
+  if(!settings){ settings = getDefaultSettings(); await idbPut("meta", settings); }
   state.settings = settings;
+  // Self-heal: dedupe payment methods (fixes any pre-existing corruption) and
+  // ensure the array is this settings object's own, never a shared reference.
+  if(Array.isArray(state.settings.paymentMethods)){
+    const seen = new Set();
+    const deduped = [];
+    for(const m of state.settings.paymentMethods){
+      const key = String(m).trim().toLowerCase();
+      if(!seen.has(key)){ seen.add(key); deduped.push(m); }
+    }
+    const changed = deduped.length !== state.settings.paymentMethods.length;
+    state.settings.paymentMethods = deduped.length ? deduped : ["Cash","Card","Venmo","Other"];
+    if(changed || !deduped.length) await idbPut("meta", state.settings);
+  }
   state.customers = await idbGetAll("customers");
   state.entries = await idbGetAll("entries");
   state.deposits = await idbGetAll("deposits");
@@ -1459,7 +1474,7 @@ function importJSON(file){
       for(const c of data.customers) await idbPut("customers", c);
       for(const e of data.entries) await idbPut("entries", e);
       for(const d of (data.deposits||[])) await idbPut("deposits", d);
-      if(data.settings) await idbPut("meta", {...DEFAULT_SETTINGS, ...data.settings, id:"settings"});
+      if(data.settings) await idbPut("meta", {...getDefaultSettings(), ...data.settings, id:"settings"});
       await loadAll();
       state.tab = "today"; state.todayOffset = 0; state.pinnedDate = null;
       render(); toast("Backup imported");
@@ -1592,7 +1607,7 @@ function bindScreenEvents(){
           const all = await idbGetAll(s);
           for(const item of all) await idbDelete(s, item.id);
         }
-        await idbPut("meta", {...DEFAULT_SETTINGS});
+        await idbPut("meta", getDefaultSettings());
         await loadAll();
         state.tab="today"; render(); toast("All data erased");
       });
