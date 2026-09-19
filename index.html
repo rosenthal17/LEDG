@@ -25,7 +25,7 @@
 
   *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
   html,body{ margin:0; padding:0; background:var(--bg); color:var(--text); font-family:var(--font-app); overscroll-behavior:none; }
-  body{ padding-bottom:calc(70px + env(safe-area-inset-bottom)); min-height:100vh; min-height:100dvh; }
+  body{ padding-bottom:calc(54px + env(safe-area-inset-bottom)); min-height:100vh; min-height:100dvh; }
   button, input, select, textarea{ font-family:inherit; }
   input, select, textarea{
     width:100%; background:var(--surface2); border:1px solid var(--border); color:var(--text);
@@ -62,10 +62,10 @@
   .meta{ color:var(--text-secondary); font-size:11px; margin-top:1px; }
   .amount{ font-size:14px; font-weight:700; white-space:nowrap; }
   .bottom-nav{ position:fixed; bottom:0; left:0; right:0; background:var(--surface); border-top:1px solid var(--border);
-    display:flex; justify-content:space-around; padding:10px 0 calc(10px + env(safe-area-inset-bottom)); z-index:20; }
-  .nav-btn{ display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--text-muted); font-size:8.5px; text-transform:uppercase; letter-spacing:0.3px; padding:4px 4px; flex:1; }
+    display:flex; justify-content:space-around; padding:5px 0 calc(5px + env(safe-area-inset-bottom)); z-index:20; }
+  .nav-btn{ display:flex; flex-direction:column; align-items:center; gap:1px; color:var(--text-muted); font-size:8px; text-transform:uppercase; letter-spacing:0.2px; padding:3px 4px; flex:1; }
   .nav-btn.active{ color:var(--accent); }
-  .nav-btn i{ font-size:20px; }
+  .nav-btn i{ font-size:17px; }
 
   /* Inline icon set (no external font dependency) */
   .ti{ display:inline-block; width:1em; height:1em; background-color:currentColor; -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat; -webkit-mask-position:center; mask-position:center; -webkit-mask-size:contain; mask-size:contain; vertical-align:-0.15em; }
@@ -91,7 +91,7 @@
   .bottom-nav.style-icons .nav-label{ display:none; }
   .bottom-nav.style-text .nav-btn i{ display:none; }
   .fab-row{ margin-bottom:14px; }
-  .fixed-cta{ position:fixed; left:0; right:0; bottom:calc(70px + env(safe-area-inset-bottom)); z-index:15; padding:10px 16px 14px; max-width:480px; margin:0 auto; background:linear-gradient(to top, var(--bg) 55%, transparent); }
+  .fixed-cta{ position:fixed; left:0; right:0; bottom:calc(54px + env(safe-area-inset-bottom)); z-index:15; padding:10px 16px 14px; max-width:480px; margin:0 auto; background:linear-gradient(to top, var(--bg) 55%, transparent); }
   .btn-big{ padding:30px 18px; font-size:22px; font-weight:800; border-radius:16px; letter-spacing:0.3px; }
   .search-box{ display:flex; align-items:center; gap:8px; background:var(--surface2); border-radius:10px; padding:9px 12px; margin-bottom:14px; }
   .search-box input{ background:none; border:none; padding:0; }
@@ -589,7 +589,8 @@ function renderDeposits(){
       } else if(recent.type === "refunded"){
         tag = `<span style="color:var(--text-secondary);">Refunded ${fmtMoney(recent.amount)}</span>`;
       }
-      note = `${fmtDateShort(dt)}${recent.note? " · " + escapeHtml(recent.note) : ""}`;
+      const methodNote = recent.type==="taken" && recent.paymentMethod ? " · " + escapeHtml(recent.paymentMethod) : "";
+      note = `${fmtDateShort(dt)}${methodNote}${recent.note? " · " + escapeHtml(recent.note) : ""}`;
     }
     return `<div class="list-row" data-action="open-profile" data-id="${c.id}">
       <div style="flex:1;min-width:0;">
@@ -1297,6 +1298,7 @@ function openNewDeposit(){
       ${recentChips ? `<div class="chip-row" style="margin-top:6px;margin-bottom:0;">${recentChips}</div>` : ""}
     </div>
     <div class="field"><div class="eyebrow">Amount</div><input id="dep-amount" type="number" inputmode="decimal" min="0" step="1" placeholder="0"></div>
+    <div class="field"><div class="eyebrow">Payment method</div><select id="dep-method">${state.settings.paymentMethods.map(m=> `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join("")}</select></div>
     <div class="field"><div class="eyebrow">Note</div><input id="dep-note" placeholder="Optional"></div>
     <div id="dep-error" class="err" style="display:none;"></div>
     <button class="btn btn-primary" data-action="save-new-deposit">Save deposit</button>
@@ -1323,12 +1325,13 @@ function openNewDeposit(){
     if(e.target.closest("[data-action='save-new-deposit']")){
       const name = custInput.value.trim();
       const amt = parseFloat(document.getElementById("dep-amount").value);
+      const method = document.getElementById("dep-method").value;
       const note = document.getElementById("dep-note").value.trim();
       const err = document.getElementById("dep-error");
       if(!name){ err.textContent = "Enter a customer name."; err.style.display="block"; return; }
       if(isNaN(amt) || amt<=0){ err.textContent = "Enter a valid amount."; err.style.display="block"; return; }
       const proceed = (customerId) => {
-        const ledger = { id: uid(), customerId, type:"taken", amount: amt, dateTime: nowLocalDateTime(), createdAt: Date.now(), note };
+        const ledger = { id: uid(), customerId, type:"taken", amount: amt, paymentMethod: method, dateTime: nowLocalDateTime(), createdAt: Date.now(), note };
         idbPut("deposits", ledger).then(()=>{ state.deposits.push(ledger); closeModal(); render(); toast("Deposit recorded"); });
       };
       if(pickedId){ proceed(pickedId); return; }
@@ -1344,6 +1347,7 @@ function openTakeDeposit(customerId){
   openModal(`<div class="dialog">
     <div style="font-size:15px;font-weight:700;margin-bottom:12px;">Take deposit</div>
     <div class="field"><div class="eyebrow">Amount</div><input id="dep-amount" type="number" inputmode="decimal" min="0" step="1" placeholder="0"></div>
+    <div class="field"><div class="eyebrow">Payment method</div><select id="dep-method">${state.settings.paymentMethods.map(m=> `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join("")}</select></div>
     <div class="field"><div class="eyebrow">Note</div><input id="dep-note" placeholder="Optional"></div>
     <div id="dep-error" class="err" style="display:none;"></div>
     <button class="btn btn-primary" data-action="save-deposit">Save deposit</button>
@@ -1352,10 +1356,11 @@ function openTakeDeposit(customerId){
   overlay.addEventListener("click", (e)=>{
     if(e.target.closest("[data-action='save-deposit']")){
       const amt = parseFloat(document.getElementById("dep-amount").value);
+      const method = document.getElementById("dep-method").value;
       const note = document.getElementById("dep-note").value.trim();
       const err = document.getElementById("dep-error");
       if(isNaN(amt) || amt<=0){ err.textContent = "Enter a valid amount."; err.style.display="block"; return; }
-      const ledger = { id: uid(), customerId, type:"taken", amount: amt, dateTime: nowLocalDateTime(), createdAt: Date.now(), note };
+      const ledger = { id: uid(), customerId, type:"taken", amount: amt, paymentMethod: method, dateTime: nowLocalDateTime(), createdAt: Date.now(), note };
       idbPut("deposits", ledger).then(()=>{ state.deposits.push(ledger); closeModal(); render(); toast("Deposit recorded"); });
     }
   });
