@@ -240,6 +240,8 @@ const state = {
   customerSearch: "",
   depositSearch: "",
   analyticsYear: null,
+  analyticsMonth: null,   // 0-11 selected bar on the monthly chart, or null
+  trend: { range:"30d", mode:"cumulative", compare:"none", cStart:"", cEnd:"", cmpStart:"", cmpEnd:"" },
   profileCustomerId: null,
   paymentsMonth: null,       // Date, first of month being viewed
   paymentsSelectedDate: null // ISO date string or null (show all)
@@ -247,6 +249,7 @@ const state = {
 
 /* ---------- Date helpers ---------- */
 const DAY_NAMES = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const MONTH_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 const MONTH_ABBR = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 function todayDateObj(){ const d = new Date(); d.setHours(0,0,0,0); return d; }
@@ -723,6 +726,195 @@ function renderPayments(){
 
 
 /* ---------- ANALYTICS screen ---------- */
+/* ---------- Trend chart helpers ---------- */
+const TREND_RANGES = [["7d","Last 7 days"],["14d","Last 14 days"],["30d","Last 30 days"],["90d","Last 90 days"],["month","This month"],["lastmonth","Last month"],["year","This year"],["lastyear","Last year"],["custom","Custom range"]];
+const TREND_COMPARES = [["none","No comparison"],["prev","Previous period"],["lastyear","Same period last year"],["custom","Custom range"]];
+function parseISO(s){ if(!s || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return null; const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); }
+function dayCount(start,end){ return Math.round((end-start)/86400000)+1; }
+function fmtD(d){ const t = todayDateObj(); return fmtDateShort(d) + (d.getFullYear()!==t.getFullYear() ? `, ${d.getFullYear()}` : ""); }
+function fmtCompact(n){ n = Math.round(n); return n>=1000 ? "$" + (n/1000).toFixed(n%1000===0?0:1) + "k" : "$" + n; }
+function trendMainRange(t){
+  const today = todayDateObj();
+  const y = today.getFullYear(), m = today.getMonth();
+  switch(t.range){
+    case "7d": return {start:addDays(today,-6), end:today, kind:"days"};
+    case "14d": return {start:addDays(today,-13), end:today, kind:"days"};
+    case "90d": return {start:addDays(today,-89), end:today, kind:"days"};
+    case "month": return {start:new Date(y,m,1), end:new Date(y,m+1,0), kind:"month"};
+    case "lastmonth": return {start:new Date(y,m-1,1), end:new Date(y,m,0), kind:"month"};
+    case "year": return {start:new Date(y,0,1), end:new Date(y,11,31), kind:"year"};
+    case "lastyear": return {start:new Date(y-1,0,1), end:new Date(y-1,11,31), kind:"year"};
+    case "custom": {
+      let s = parseISO(t.cStart), e = parseISO(t.cEnd);
+      if(s && e){ if(s>e){ const x=s; s=e; e=x; } return {start:s, end:e, kind:"days"}; }
+      return {start:addDays(today,-29), end:today, kind:"days"};
+    }
+    default: return {start:addDays(today,-29), end:today, kind:"days"};
+  }
+}
+function trendCompareRange(t, main){
+  if(t.compare==="none") return null;
+  if(t.compare==="custom"){
+    let s = parseISO(t.cmpStart), e = parseISO(t.cmpEnd);
+    if(!s || !e) return null;
+    if(s>e){ const x=s; s=e; e=x; }
+    return {start:s, end:e};
+  }
+  if(t.compare==="lastyear"){
+    return {start:new Date(main.start.getFullYear()-1, main.start.getMonth(), main.start.getDate()), end:new Date(main.end.getFullYear()-1, main.end.getMonth(), main.end.getDate())};
+  }
+  // previous period
+  if(main.kind==="month") return {start:new Date(main.start.getFullYear(), main.start.getMonth()-1, 1), end:new Date(main.start.getFullYear(), main.start.getMonth(), 0)};
+  if(main.kind==="year") return {start:new Date(main.start.getFullYear()-1,0,1), end:new Date(main.start.getFullYear()-1,11,31)};
+  const n = dayCount(main.start, main.end);
+  const end = addDays(main.start,-1);
+  return {start:addDays(end,-(n-1)), end};
+}
+function dailyValues(start, end, cutoff){ // array of {date, v} ; v=null after cutoff
+  const totals = {};
+  state.entries.forEach(e => { const k = e.dateTime.slice(0,10); totals[k] = (totals[k]||0) + entryTotal(e); });
+  const out = [], n = dayCount(start,end);
+  for(let i=0;i<n;i++){
+    const d = addDays(start,i);
+    out.push({date:d, v: (cutoff && d>cutoff) ? null : (totals[toISODate(d)]||0)});
+  }
+  return out;
+}
+function toCumulative(arr){ let s=0; return arr.map(p=>({date:p.date, v: p.v===null ? null : (s+=p.v)})); }
+function niceMax(v){ if(v<=0) return 1; const p = Math.pow(10, Math.floor(Math.log10(v))); const f = v/p; const nf = f<=1?1: f<=2?2: f<=2.5?2.5: f<=5?5:10; return nf*p; }
+
+let trendChartData = null;
+
+function renderTrendCard(){
+  const t = state.trend;
+  const today = todayDateObj();
+  const main = trendMainRange(t);
+  const cmp = trendCompareRange(t, main);
+  const cumulative = t.mode === "cumulative";
+
+  let mainVals = dailyValues(main.start, main.end, today);
+  let cmpVals = cmp ? dailyValues(cmp.start, cmp.end, null) : null;
+  const mainDaily = mainVals, cmpDaily = cmpVals;
+  if(cumulative){ mainVals = toCumulative(mainVals); if(cmpVals) cmpVals = toCumulative(cmpVals); }
+
+  const mainTotal = mainDaily.reduce((s,p)=> s+(p.v||0), 0);
+  const elapsed = mainDaily.filter(p=>p.v!==null).length; // days that have happened
+  const cmpTotalAligned = cmpDaily ? cmpDaily.slice(0, elapsed).reduce((s,p)=> s+p.v, 0) : null;
+  const partial = elapsed < mainDaily.length;
+
+  const N = Math.max(mainVals.length, cmpVals ? cmpVals.length : 0);
+  const W = 320, H = 150, padL = 36, padR = 8, padT = 10, padB = 20;
+  const plotW = W-padL-padR, plotH = H-padT-padB;
+  const allV = mainVals.map(p=>p.v).concat(cmpVals ? cmpVals.map(p=>p.v) : []).filter(v=>v!==null);
+  const rawMax = Math.max(0, ...allV);
+  const yMax = niceMax(rawMax);
+  const xAt = i => padL + (N<=1 ? plotW/2 : (i/(N-1))*plotW);
+  const yAt = v => padT + plotH - (v/yMax)*plotH;
+  const pathFor = vals => { let d="", pen=false; vals.forEach((p,i)=>{ if(p.v===null){ pen=false; return; } d += (pen?"L":"M") + xAt(i).toFixed(1)+" "+yAt(p.v).toFixed(1); pen=true; }); return d; };
+
+  const hasData = rawMax > 0;
+  const grid = [0,0.5,1].map(f=>{
+    const y = yAt(yMax*f).toFixed(1);
+    return `<line x1="${padL}" x2="${W-padR}" y1="${y}" y2="${y}" style="stroke:var(--border);stroke-width:1;" ${f===0?"":'stroke-dasharray="2 3"'}/>
+      <text x="${padL-5}" y="${(+y+3).toFixed(1)}" text-anchor="end" style="fill:var(--text-muted);font-size:8px;">${fmtCompact(yMax*f)}</text>`;
+  }).join("");
+
+  const lastMainIdx = elapsed-1;
+  let areaPath = "";
+  if(cumulative && hasData && elapsed>0){
+    areaPath = `<path d="${pathFor(mainVals.slice(0,elapsed))} L${xAt(lastMainIdx).toFixed(1)} ${yAt(0)} L${xAt(0).toFixed(1)} ${yAt(0)} Z" style="fill:var(--accent);opacity:0.12;"/>`;
+  }
+  const cmpLine = cmpVals && hasData ? `<path d="${pathFor(cmpVals)}" fill="none" style="stroke:var(--text-secondary);stroke-width:2;" stroke-dasharray="4 3" stroke-linejoin="round" stroke-linecap="round"/>` : "";
+  const mainLine = hasData ? `<path d="${pathFor(mainVals)}" fill="none" style="stroke:var(--accent);stroke-width:2;" stroke-linejoin="round" stroke-linecap="round"/>` : "";
+
+  const midIdx = Math.floor((mainVals.length-1)/2);
+  const xLabels = mainVals.length>1 ? `
+    <text x="${padL}" y="${H-5}" text-anchor="start" style="fill:var(--text-muted);font-size:8px;">${fmtD(main.start)}</text>
+    <text x="${xAt(midIdx).toFixed(1)}" y="${H-5}" text-anchor="middle" style="fill:var(--text-muted);font-size:8px;">${fmtD(mainVals[midIdx].date)}</text>
+    <text x="${xAt(mainVals.length-1).toFixed(1)}" y="${H-5}" text-anchor="end" style="fill:var(--text-muted);font-size:8px;">${fmtD(main.end)}</text>` : "";
+
+  const cross = `<line id="trend-cross" x1="0" x2="0" y1="${padT}" y2="${padT+plotH}" style="stroke:var(--text-muted);stroke-width:1;display:none;"/>
+    <circle id="trend-dot-main" r="4" style="fill:var(--accent);stroke:var(--surface);stroke-width:2;display:none;"/>
+    <circle id="trend-dot-cmp" r="4" style="fill:var(--text-secondary);stroke:var(--surface);stroke-width:2;display:none;"/>`;
+
+  trendChartData = { N, W, padL, plotW, padT, plotH, yMax, cumulative, cmp: !!cmpVals,
+    main: mainVals.map(p=>({d:fmtD(p.date), v:p.v})), cmpPts: cmpVals ? cmpVals.map(p=>({d:fmtD(p.date), v:p.v})) : null,
+    mainDaily: mainDaily.map(p=>p.v), cmpDaily: cmpDaily ? cmpDaily.map(p=>p.v) : null };
+
+  // summary
+  let deltaHtml = "";
+  if(cmpVals){
+    const diff = mainTotal - cmpTotalAligned;
+    const pct = cmpTotalAligned>0 ? Math.round(diff/cmpTotalAligned*100) : null;
+    const up = diff>=0;
+    deltaHtml = `<div style="font-size:12px;margin-top:2px;"><span style="color:${up?"var(--accent)":"var(--danger)"};font-weight:700;">${up?"▲":"▼"} ${fmtMoney(Math.abs(diff))}${pct!==null?` (${up?"+":"-"}${Math.abs(pct)}%)`:""}</span>
+      <span style="color:var(--text-secondary);"> vs ${fmtMoney(cmpTotalAligned)}${partial?" (same days)":""}</span></div>`;
+  }
+
+  const dateInput = (id, val) => `<input id="${id}" type="date" class="date-chip-input" value="${val||""}" style="padding:8px 6px;font-size:16px;">`;
+  const customMain = t.range==="custom" ? `<div class="row" style="gap:8px;margin-bottom:8px;">${dateInput("trend-cstart", t.cStart)}${dateInput("trend-cend", t.cEnd)}</div>` : "";
+  const customCmp = t.compare==="custom" ? `<div class="row" style="gap:8px;margin-bottom:8px;">${dateInput("trend-cmpstart", t.cmpStart)}${dateInput("trend-cmpend", t.cmpEnd)}</div>` : "";
+  const selStyle = "flex:1;min-width:0;width:100%;padding:8px;font-size:16px;";
+  const sel = (id, opts, cur) => `<select id="${id}" style="${selStyle}">${opts.map(([v,l])=>`<option value="${v}" ${v===cur?"selected":""}>${l}</option>`).join("")}</select>`;
+  const modeChip = (val,label) => `<div class="chip ${t.mode===val?"active":""}" data-action="trend-mode" data-val="${val}" style="${t.mode===val?"background:var(--accent);color:var(--accent-text);border-color:var(--accent);":""}">${label}</div>`;
+
+  const legend = `<div class="row" style="gap:14px;margin-top:8px;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-secondary);"><span style="width:16px;height:0;border-top:2px solid var(--accent);display:inline-block;"></span>${fmtD(main.start)} – ${fmtD(main.end)}</div>
+    ${cmp && cmpVals ? `<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-secondary);"><span style="width:16px;height:0;border-top:2px dashed var(--text-secondary);display:inline-block;"></span>${fmtD(cmp.start)} – ${fmtD(cmp.end)}</div>` : ""}
+  </div>`;
+  const cmpHint = (t.compare==="custom" && !cmpVals) ? `<div style="color:var(--text-secondary);font-size:11px;margin-bottom:8px;">Pick a start and end date to compare.</div>` : "";
+
+  return `<div class="card">
+    <div class="eyebrow">Trend</div>
+    <div class="row" style="gap:8px;margin-bottom:8px;">${sel("trend-range", TREND_RANGES, t.range)}</div>
+    ${customMain}
+    <div class="row" style="gap:8px;margin-bottom:8px;align-items:center;"><span style="font-size:11px;color:var(--text-secondary);flex-shrink:0;">Compare</span>${sel("trend-compare", TREND_COMPARES, t.compare)}</div>
+    ${customCmp}${cmpHint}
+    <div class="row" style="gap:6px;margin-bottom:10px;">${modeChip("cumulative","Running total")}${modeChip("daily","Daily")}</div>
+    <div style="font-size:22px;font-weight:800;">${fmtMoney(mainTotal)}</div>
+    ${deltaHtml || `<div style="height:2px;"></div>`}
+    <div id="trend-readout" style="font-size:11px;color:var(--text-secondary);min-height:30px;margin:6px 0 4px;">${hasData ? "Touch the chart for day-by-day detail." : "No payments in this range."}</div>
+    <svg id="trend-svg" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block;touch-action:pan-y;user-select:none;-webkit-user-select:none;" role="img" aria-label="Payments trend chart">
+      ${grid}${areaPath}${cmpLine}${mainLine}${xLabels}${cross}
+    </svg>
+    ${legend}
+  </div>`;
+}
+
+function bindTrendChart(){
+  const svg = document.getElementById("trend-svg");
+  const D = trendChartData;
+  if(!svg || !D) return;
+  const cross = document.getElementById("trend-cross"), dm = document.getElementById("trend-dot-main"), dc = document.getElementById("trend-dot-cmp");
+  const out = document.getElementById("trend-readout");
+  const yAt = v => D.padT + D.plotH - (v/D.yMax)*D.plotH;
+  const xAt = i => D.padL + (D.N<=1 ? D.plotW/2 : (i/(D.N-1))*D.plotW);
+  const show = (clientX)=>{
+    const r = svg.getBoundingClientRect();
+    const vx = (clientX - r.left) / r.width * D.W;
+    let i = Math.round(((vx - D.padL)/D.plotW)*(D.N-1));
+    i = Math.max(0, Math.min(D.N-1, i));
+    const x = xAt(i);
+    cross.setAttribute("x1", x); cross.setAttribute("x2", x); cross.style.display = "";
+    const mp = D.main[i], cp = D.cmpPts ? D.cmpPts[i] : null;
+    const dayVal = (arr,idx)=> arr && arr[idx]!==null && arr[idx]!==undefined ? arr[idx] : null;
+    let html = "";
+    if(mp && mp.v!==null){
+      dm.setAttribute("cx", x); dm.setAttribute("cy", yAt(mp.v)); dm.style.display = "";
+      const dv = dayVal(D.mainDaily,i);
+      html += `<div><span style="color:var(--text);font-weight:700;">${mp.d}</span> · ${fmtMoney(mp.v)}${D.cumulative && dv ? ` <span style="color:var(--text-muted);">(+${fmtMoney(dv)} that day)</span>` : ""}</div>`;
+    } else { dm.style.display = "none"; html += `<div><span style="color:var(--text-muted);">${mp?mp.d:""} · upcoming</span></div>`; }
+    if(cp && cp.v!==null){
+      dc.setAttribute("cx", x); dc.setAttribute("cy", yAt(cp.v)); dc.style.display = "";
+      const dv = dayVal(D.cmpDaily,i);
+      html += `<div>${cp.d} · ${fmtMoney(cp.v)}${D.cumulative && dv ? ` <span style="color:var(--text-muted);">(+${fmtMoney(dv)} that day)</span>` : ""}</div>`;
+    } else dc.style.display = "none";
+    out.innerHTML = html;
+  };
+  svg.addEventListener("pointerdown", e=> show(e.clientX));
+  svg.addEventListener("pointermove", e=> { if(e.pointerType==="mouse" || e.buttons) show(e.clientX); });
+}
+
 function renderAnalytics(){
   const now = todayDateObj();
   const yStart = new Date(now.getFullYear(),0,1), yEnd = new Date(now.getFullYear(),11,31);
@@ -764,13 +956,33 @@ function renderAnalytics(){
     } else {
       segsHtml = `<div style="width:100%;background:var(--surface3);height:${barH}px;"></div>`;
     }
-    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+    const sel = state.analyticsMonth === i, dim = state.analyticsMonth !== null && !sel;
+    return `<div data-action="pick-month" data-month="${i}" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:4px 0;border-radius:6px;${sel?"background:var(--surface2);":""}opacity:${dim?0.45:1};">
       <div style="width:100%;background:var(--surface3);border-radius:3px;height:60px;display:flex;align-items:flex-end;overflow:hidden;">
         <div style="width:100%;display:flex;flex-direction:column-reverse;border-radius:3px;overflow:hidden;">${segsHtml}</div>
       </div>
-      <div style="font-size:8px;color:var(--text-muted);">${MONTH_ABBR[i][0]}</div>
+      <div style="font-size:9px;color:${sel?"var(--accent)":"var(--text-muted)"};font-weight:${sel?800:400};">${MONTH_ABBR[i]}</div>
     </div>`;
   }).join("");
+
+  // selected-month detail
+  let monthDetail = "";
+  if(state.analyticsMonth !== null){
+    const mi = state.analyticsMonth;
+    const mEntries = yearEntries.filter(e => parseInt(e.dateTime.slice(5,7),10)-1 === mi);
+    const mTotal = monthTotals[mi];
+    const rows = Object.entries(monthMethodTotals[mi]).sort((a,b)=>b[1]-a[1]).map(([name,val])=>
+      `<div class="row-between" style="padding:5px 0;"><span style="display:flex;align-items:center;gap:8px;font-size:12px;"><span style="width:8px;height:8px;border-radius:50%;background:${methodColor(name)};display:inline-block;"></span>${escapeHtml(name)}</span><span style="font-size:12px;"><b>${fmtMoney(val)}</b> <span style="color:var(--text-secondary);">${Math.round(val/mTotal*100)}%</span></span></div>`).join("");
+    monthDetail = `<div style="background:var(--surface2);border-radius:12px;padding:12px;margin-top:10px;">
+      <div class="row-between" style="align-items:baseline;">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;">${MONTH_FULL[mi]} ${year}</div>
+        <div style="font-size:11px;color:var(--text-secondary);">${mEntries.length} ${mEntries.length===1?"payment":"payments"}</div>
+      </div>
+      <div style="font-size:20px;font-weight:800;margin:2px 0 ${sumTips(mEntries)>0?0:6}px;">${fmtMoney(mTotal)}</div>
+      ${sumTips(mEntries)>0 ? `<div style="color:var(--text-secondary);font-size:11px;margin-bottom:6px;">${fmtMoney(sumTips(mEntries))} tip</div>` : ""}
+      ${rows || `<div style="color:var(--text-secondary);font-size:12px;">No payments this month.</div>`}
+    </div>`;
+  }
 
   // payment method breakdown (all-time)
   const methodTotals = {};
@@ -812,15 +1024,19 @@ function renderAnalytics(){
 
     <div class="card">
       <div class="row-between" style="margin-bottom:10px;">
-        <div class="eyebrow" style="margin:0;">Monthly total, ${year}</div>
+        <div class="eyebrow" style="margin:0;">By month, ${year}</div>
         <select id="year-select" style="width:auto;padding:4px 8px;font-size:16px;">
           ${yearOptions.map(y=> `<option value="${y}" ${y===year?"selected":""}>${y}</option>`).join("")}
         </select>
       </div>
+      <div class="meta" style="margin:0 0 2px;">Year total</div>
       <div style="font-size:22px;font-weight:800;margin-bottom:2px;">${fmtMoney(yearTotal)}</div>
       ${sumTips(yearEntries)>0 ? `<div style="color:var(--text-secondary);font-size:11px;margin-bottom:8px;">${fmtMoney(sumTips(yearEntries))} tip</div>` : `<div style="margin-bottom:8px;"></div>`}
-      <div style="display:flex;gap:4px;align-items:flex-end;">${bars}</div>
+      <div style="display:flex;gap:2px;align-items:flex-end;">${bars}</div>
+      ${monthDetail || `<div style="color:var(--text-muted);font-size:11px;margin-top:8px;">Tap a month for its breakdown.</div>`}
     </div>
+
+    ${renderTrendCard()}
 
     <div class="card">
       <div class="eyebrow">Payment method (all time)</div>
@@ -1547,7 +1763,25 @@ function bindScreenEvents(){
   if(depSearchInput) depSearchInput.addEventListener("input", (e)=>{ state.depositSearch = e.target.value; render(); preserveFocus("deposit-search"); });
 
   const yearSelect = document.getElementById("year-select");
-  if(yearSelect) yearSelect.addEventListener("change", (e)=>{ state.analyticsYear = parseInt(e.target.value,10); render(); });
+  if(yearSelect) yearSelect.addEventListener("change", (e)=>{ state.analyticsYear = parseInt(e.target.value,10); state.analyticsMonth = null; render(); });
+
+  const bindSel = (id, fn)=>{ const x = document.getElementById(id); if(x) x.addEventListener("change", ev=>{ fn(ev.target.value); render(); }); };
+  bindSel("trend-range", v=>{
+    state.trend.range = v;
+    if(v==="custom" && !(parseISO(state.trend.cStart) && parseISO(state.trend.cEnd))){ const td = todayDateObj(); state.trend.cEnd = toISODate(td); state.trend.cStart = toISODate(addDays(td,-29)); }
+  });
+  bindSel("trend-compare", v=>{
+    state.trend.compare = v;
+    if(v==="custom" && !(parseISO(state.trend.cmpStart) && parseISO(state.trend.cmpEnd))){
+      const prev = trendCompareRange({...state.trend, compare:"prev"}, trendMainRange(state.trend));
+      state.trend.cmpStart = toISODate(prev.start); state.trend.cmpEnd = toISODate(prev.end);
+    }
+  });
+  bindSel("trend-cstart", v=>{ state.trend.cStart = v; });
+  bindSel("trend-cend", v=>{ state.trend.cEnd = v; });
+  bindSel("trend-cmpstart", v=>{ state.trend.cmpStart = v; });
+  bindSel("trend-cmpend", v=>{ state.trend.cmpEnd = v; });
+  bindTrendChart();
 
   const weekStart = document.getElementById("week-start");
   if(weekStart) weekStart.addEventListener("change", (e)=>{ state.settings.weekStartDay = parseInt(e.target.value,10); saveSettings(); });
@@ -1571,6 +1805,8 @@ function bindScreenEvents(){
 
   el.onclick = (e)=>{
     const t = (sel)=> e.target.closest(sel);
+    if(t("[data-action='pick-month']")){ const m = parseInt(t("[data-action='pick-month']").dataset.month,10); state.analyticsMonth = state.analyticsMonth===m ? null : m; return render(); }
+    if(t("[data-action='trend-mode']")){ state.trend.mode = t("[data-action='trend-mode']").dataset.val; return render(); }
     if(t("[data-action='new-entry']")) return openEntryForm();
     if(t("[data-action='open-entry']")) return openEntryForm(t("[data-action='open-entry']").dataset.id);
     if(t("[data-action='edit-history']")) return openEditHistory(t("[data-action='edit-history']").dataset.id);
